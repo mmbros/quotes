@@ -11,7 +11,7 @@ import (
 )
 
 const usageSources = `Usage:
-%s
+    %s
 
 Prints list of available sources.
 `
@@ -39,5 +39,6 @@ func parseExecSources(fullname string, arguments []string) error {
 
 func execSources(w io.Writer) {
 	sources := quote.Sources()
-	fmt.Fprintf(w, "Available sources: \"%s\"\n", strings.Join(sources, "\", \""))
+	//	fmt.Fprintf(w, "Available sources: \"%s\"\n", strings.Join(sources, "\", \""))
+	fmt.Fprintln(w, strings.Join(sources, ", "))
 }

@@ -32,7 +32,7 @@ func Test_execSources(t *testing.T) {
 		name  string
 		wantW string
 	}{
-		{"contains", "Available sources"},
+		{"contains", "morningstarit"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
