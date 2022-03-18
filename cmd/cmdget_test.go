@@ -1,12 +1,5 @@
 package cmd_test
 
-// Lisa Melone
-// lisa.melone@wail.ch
-//
-// andiamo SPE$$0 a pescare
-//
-// https://woelklimail.com/
-
 import (
 	"flag"
 	"os"
@@ -19,6 +12,14 @@ import (
 
 func Test_GetDryRun(t *testing.T) {
 
+	tmpFile, err := os.CreateTemp("", "temp-app-config-")
+	if err != nil {
+		t.Log(err)
+		t.FailNow()
+	}
+	fname := tmpFile.Name()
+	defer os.Remove(fname)
+
 	testCases := map[string]struct {
 		cmdline string
 		want    string
@@ -28,7 +29,7 @@ func Test_GetDryRun(t *testing.T) {
 			want:    `Mode: "1"`,
 		},
 		"app get -n (with config)": {
-			cmdline: "app get -n --config $HOME/.quote.yaml",
+			cmdline: "app get -n --config " + fname,
 			want:    "Using configuration file",
 		},
 	}

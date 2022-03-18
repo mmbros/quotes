@@ -52,3 +52,12 @@ func Test_Help(t *testing.T) {
 		})
 	}
 }
+
+func Example_parseExecSources() {
+	cmdline := "app sources"
+	os.Args = strings.Split(cmdline, " ")
+	cmd.Execute()
+
+	// Output:
+	// Available sources: "cryptonatorcom-EUR", "fondidocit", "fundsquarenet", "morningstarit"
+}

@@ -4,10 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/mmbros/flagx"
-	"github.com/mmbros/quote/internal/quote"
 )
 
 const (
@@ -74,7 +72,7 @@ func initApp() *flagx.Command {
 				ParseExec: parseExecTor,
 			},
 			"sources,s": {
-				ParseExec: runQuotesSources,
+				ParseExec: parseExecSources,
 			},
 		},
 	}
@@ -83,39 +81,19 @@ func initApp() *flagx.Command {
 }
 
 func parseExecApp(fullname string, arguments []string) error {
+	// parse the arguments
+	flags := NewFlags(fullname, fgApp)
+	flags.SetUsage(usageApp, fullname)
 
-	fs := flag.NewFlagSet(fullname, flag.ContinueOnError)
-	fs.Usage = func() {
-		fmt.Fprintf(flag.CommandLine.Output(), usageApp, fullname)
-	}
+	err := flags.Parse(arguments)
 
-	err := fs.Parse(arguments)
+	// handle help
 	if err == nil || err == flag.ErrHelp {
-		fs.Usage()
-		err = nil
+		flags.Usage()
+		return nil
 	}
 
 	return err
-}
-
-func runQuotesSources(fullname string, arguments []string) error {
-	// it is used a module level declaration for test porpouses.
-	// normally do: argsQuotes := &appArgs{}
-	// argsQuotes := &appArgs{}
-
-	fs := flag.NewFlagSet(fullname, flag.ContinueOnError)
-	fs.Usage = func() {
-		fmt.Fprintf(flag.CommandLine.Output(), usageSources, fullname)
-	}
-
-	err := fs.Parse(arguments)
-	if err != nil {
-		return err
-	}
-
-	sources := quote.Sources()
-	fmt.Printf("Available sources: \"%s\"\n", strings.Join(sources, "\", \""))
-	return nil
 }
 
 // Execute is the main function
