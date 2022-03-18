@@ -215,7 +215,7 @@ func (cfg *Config) normalizeVars() {
 // - Isin and Source items disabled if not requested, enabled otherwise;
 // - Isin.Sources not empty;
 // - All available sourced existing in config.Sources
-func (cfg *Config) merge(args *Args, allAvailableSources []string) error {
+func (cfg *Config) merge(args *Flags, allAvailableSources []string) error {
 
 	// ensure all available source are in config
 	disabled := (args != nil) && (len(args.sources) > 0)
@@ -499,24 +499,24 @@ func (cfg *Config) SourceIsinsList() []*quote.SourceIsins {
 	return sis
 }
 
-func NewConfig(cfginfo *configfile.Info, args *Args, allSources []string) (*Config, error) {
+func NewConfig(cfi *configfile.Info, flags *Flags, allSources []string) (*Config, error) {
 	var err error
 	var data []byte
 	var dataformat string
 
 	// 1. read config file, if  not empty
-	if cfginfo != nil && cfginfo.Path() != "" {
-		data, err = ioutil.ReadFile(cfginfo.Path())
+	if cfi != nil && cfi.Path() != "" {
+		data, err = ioutil.ReadFile(cfi.Path())
 		if err != nil {
 			return nil, err
 		}
-		dataformat = cfginfo.Format()
+		dataformat = cfi.Format()
 	}
 
-	return auxNewConfig(data, dataformat, args, allSources)
+	return auxNewConfig(data, dataformat, flags, allSources)
 }
 
-func auxNewConfig(data []byte, dataformat string, args *Args, allSources []string) (*Config, error) {
+func auxNewConfig(data []byte, dataformat string, flags *Flags, allSources []string) (*Config, error) {
 	var err error
 	cfg := &Config{}
 
@@ -530,7 +530,7 @@ func auxNewConfig(data []byte, dataformat string, args *Args, allSources []strin
 
 	// 3. merge command line arguments in config
 	if err == nil {
-		err = cfg.merge(args, allSources)
+		err = cfg.merge(flags, allSources)
 	}
 
 	// 4. remove unused isins and sources
@@ -547,14 +547,15 @@ func auxNewConfig(data []byte, dataformat string, args *Args, allSources []strin
 }
 
 // getConfig ...
-func getConfig(appname string, args *Args, allSources []string) (*Config, error) {
+func getConfig(flags *Flags, allSources []string) (*Config, error) {
 
-	cfi, err := configfile.NewInfo(appname, "", args.config, args.configType, args.IsPassed(namesConfig))
+	appname := flags.Appname()
+	cfi, err := configfile.NewInfo(appname, "", flags.config, flags.configType, flags.IsPassed(namesConfig))
 	if err != nil {
 		return nil, err
 	}
 
-	cfg, err := NewConfig(cfi, args, allSources)
+	cfg, err := NewConfig(cfi, flags, allSources)
 	if err != nil {
 		return nil, err
 	}

@@ -28,7 +28,7 @@ func Test_GetDryRun(t *testing.T) {
 			want:    `Mode: "1"`,
 		},
 		"app get -n (with config)": {
-			cmdline: "app get -n --config /home/mau/mauro.quote.yaml",
+			cmdline: "app get -n --config $HOME/.quote.yaml",
 			want:    "Using configuration file",
 		},
 	}

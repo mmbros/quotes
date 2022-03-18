@@ -216,8 +216,15 @@ func TestUnmarshalError(t *testing.T) {
 // 	return args, err
 // }
 
-func initAppGetArgs(options string) (*Args, error) {
-	return parseGet("get", strings.Split(options, " "))
+func initAppGetArgs(options string) (*Flags, error) {
+	fullname := "app get"
+	arguments := strings.Split(options, " ")
+
+	args := NewFlags(fullname, fgAppGet)
+	args.SetUsage(usageGet, fullname)
+	err := args.Parse(arguments)
+
+	return args, err
 }
 
 func TestWorkers(t *testing.T) {

@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/mmbros/flagx"
 	"github.com/mmbros/quote/internal/quote"
 )
 
@@ -12,52 +11,32 @@ func parseExecTor(fullname string, arguments []string) error {
 	var cfg *Config
 
 	// parse the arguments
-	args, err := parseTor(fullname, arguments)
+	flags := NewFlags(fullname, fgAppTor)
+	flags.SetUsage(usageTor, fullname)
+
+	err := flags.Parse(arguments)
 
 	// handle help
 	if err == flag.ErrHelp {
-		args.flagSet.Usage()
+		flags.Usage()
 		return nil
 	}
 	if err != nil {
 		return err
 	}
 
-	appname := getAppname(fullname)
-
 	// get configuration
-	cfg, err = getConfig(appname, args, quote.Sources())
+	cfg, err = getConfig(flags, quote.Sources())
 	if err != nil {
 		return err
 	}
 
-	return execTor(args, cfg)
+	return execTor(flags, cfg)
 }
 
-func parseTor(fullname string, arguments []string) (*Args, error) {
-	// it is used a module level declaration for test porpouses.
-	// normally do: args := &appArgs{}
-	args := &Args{}
-
-	fs := flag.NewFlagSet(fullname, flag.ContinueOnError)
-	// use the same output as flag.CommandLine
-	fs.SetOutput(flag.CommandLine.Output())
-
-	fs.Usage = func() {
-		fmt.Fprintf(fs.Output(), usageTor, fullname)
-	}
-	flagx.AliasedStringVar(fs, &args.config, namesConfig, "", "")
-	flagx.AliasedStringVar(fs, &args.configType, namesConfigType, "", "")
-	flagx.AliasedStringVar(fs, &args.proxy, namesProxy, "", "")
-
-	err := fs.Parse(arguments)
-
-	return args, err
-}
-
-func execTor(args *Args, cfg *Config) error {
-	if args.IsPassed(namesConfig) {
-		fmt.Printf("Using configuration file %q\n", args.config)
+func execTor(flags *Flags, cfg *Config) error {
+	if flags.IsPassed(namesConfig) {
+		fmt.Printf("Using configuration file %q\n", flags.config)
 	}
 	proxy := cfg.Proxy
 	// proxy = "x://\\"
