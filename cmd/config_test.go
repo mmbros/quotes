@@ -220,11 +220,12 @@ func initAppGetArgs(options string) (*Flags, error) {
 	fullname := "app get"
 	arguments := strings.Split(options, " ")
 
-	args := NewFlags(fullname, fgAppGet)
-	args.SetUsage(usageGet, fullname)
-	err := args.Parse(arguments)
+	flags := NewFlags(fullname, fgAppGet)
+	flags.SetUsage(usageGet, fullname, defaultWorkers, defaultMode)
 
-	return args, err
+	err := flags.Parse(arguments)
+
+	return flags, err
 }
 
 func TestWorkers(t *testing.T) {

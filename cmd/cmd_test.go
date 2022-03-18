@@ -17,22 +17,43 @@ func Test_Help(t *testing.T) {
 		want    string
 	}{
 		"app (only)": {
-			cmdline: "appNAME",
-			want:    "appNAME <command>",
+			cmdline: "app",
+			want:    "app <command>",
 		},
 		"app --help": {
-			cmdline: "appNAME --help",
-			want:    "appNAME <command>",
+			cmdline: "app --help",
+			want:    "app <command>",
+		},
+		"app -h": {
+			cmdline: "app --help",
+			want:    "app <command>",
 		},
 		"app get -h": {
-			cmdline: "appNAME get -h",
-			want:    "appNAME get",
+			cmdline: "app get -h",
+			want:    "app get",
 		},
 		"app g --help (short version)": {
-			cmdline: "appNAME g --help",
-			want:    "appNAME get",
+			cmdline: "app g --help",
+			want:    "app get",
+		},
+		"app sources -h": {
+			cmdline: "app sources -h",
+			want:    "app sources",
+		},
+		"app s --help (short version)": {
+			cmdline: "app s --help",
+			want:    "app sources",
+		},
+		"app tor -h": {
+			cmdline: "app tor -h",
+			want:    "app tor",
+		},
+		"app t --help (short version)": {
+			cmdline: "app t --help",
+			want:    "app tor",
 		},
 	}
+
 	for title, tc := range testCases {
 
 		t.Run(title, func(t *testing.T) {
@@ -43,21 +64,7 @@ func Test_Help(t *testing.T) {
 			os.Args = strings.Split(tc.cmdline, " ")
 			cmd.Execute()
 
-			// if diff := cmp.Diff(tc.want, out.String(), nil); diff != "" {
-			// 	t.Errorf("%s: mismatch (-want +got):\n%s", title, diff)
-			// }
-
 			assert.Contains(t, out.String(), tc.want, "usage does not contain expected string")
-
 		})
 	}
-}
-
-func Example_parseExecSources() {
-	cmdline := "app sources"
-	os.Args = strings.Split(cmdline, " ")
-	cmd.Execute()
-
-	// Output:
-	// Available sources: "cryptonatorcom-EUR", "fondidocit", "fundsquarenet", "morningstarit"
 }
