@@ -10,6 +10,59 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func Test_Execute(t *testing.T) {
+
+	testCases := map[string]struct {
+		cmdline  string
+		wantCode int
+		wantErr  string
+	}{
+		"ok": {
+			cmdline:  "app",
+			wantCode: 0,
+		},
+		"ok2": {
+			cmdline:  "app -h",
+			wantCode: 0,
+		},
+		"error": {
+			cmdline:  "app --not-exists",
+			wantCode: 1,
+			wantErr:  "flag provided but not defined",
+		},
+	}
+
+	for title, tc := range testCases {
+
+		t.Run(title, func(t *testing.T) {
+
+			os.Args = strings.Split(tc.cmdline, " ")
+
+			var stdout, stderr strings.Builder
+
+			flag.CommandLine.SetOutput(&stdout)
+			gotCode := cmd.Execute(&stderr)
+
+			if gotCode != tc.wantCode {
+				t.Errorf("Execute() = %d, want %d", gotCode, tc.wantCode)
+			}
+
+			gotErr := stderr.String()
+			if tc.wantErr != "" {
+				// msg error is expected
+				if !strings.Contains(gotErr, tc.wantErr) {
+					t.Errorf("Execute(): expected error %q does not contain %q", gotErr, tc.wantErr)
+				}
+			} else {
+				// msg error is NOT expected
+				if stderr.Len() > 0 {
+					t.Errorf("Execute(): unexpected error %q", gotErr)
+				}
+			}
+		})
+	}
+}
+
 func Test_Help(t *testing.T) {
 
 	testCases := map[string]struct {
@@ -62,7 +115,7 @@ func Test_Help(t *testing.T) {
 			flag.CommandLine.SetOutput(&out)
 
 			os.Args = strings.Split(tc.cmdline, " ")
-			cmd.Execute()
+			cmd.Execute(&out)
 
 			assert.Contains(t, out.String(), tc.want, "usage does not contain expected string")
 		})

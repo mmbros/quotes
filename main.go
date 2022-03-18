@@ -18,10 +18,12 @@ Available sub-commands are:
 package main
 
 import (
+	"os"
+
 	"github.com/mmbros/quote/cmd"
 )
 
 func main() {
-
-	cmd.Execute()
+	code := cmd.Execute(os.Stdout)
+	os.Exit(code)
 }

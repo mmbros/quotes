@@ -3,7 +3,7 @@ package cmd
 import (
 	"flag"
 	"fmt"
-	"os"
+	"io"
 
 	"github.com/mmbros/flagx"
 )
@@ -55,13 +55,11 @@ func parseExecApp(fullname string, arguments []string) error {
 }
 
 // Execute is the main function
-func Execute() {
+func Execute(stderr io.Writer) int {
 	app := initApp()
-
-	err := flagx.Run(app)
-
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+	if err := flagx.Run(app); err != nil {
+		fmt.Fprintln(stderr, err)
+		return 1
 	}
+	return 0
 }

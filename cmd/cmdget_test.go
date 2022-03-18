@@ -41,7 +41,7 @@ func Test_GetDryRun(t *testing.T) {
 			flag.CommandLine.SetOutput(&out)
 
 			os.Args = strings.Split(tc.cmdline, " ")
-			cmd.Execute()
+			cmd.Execute(&out)
 
 			// if diff := cmp.Diff(tc.want, out.String(), nil); diff != "" {
 			// 	t.Errorf("%s: mismatch (-want +got):\n%s", title, diff)
