@@ -7,6 +7,23 @@ import (
 	"github.com/mmbros/quote/internal/quote"
 )
 
+const usageTor = `Usage:
+%s [options]
+
+Checks if Tor network will be used to get the quote.
+
+To use the Tor network the proxy must be defined through:
+1. proxy argument parameter
+2. proxy config file parameter
+3. HTTP_PROXY, HTTPS_PROXY and NOPROXY enviroment variables.
+
+Options:
+-c, --config      path    config file (default is $HOME/.quote.yaml)
+   --config-type string  used if config file does not have the extension in the name;
+						 accepted values are: YAML, TOML and JSON 
+-p, --proxy       url     proxy to test the Tor network
+`
+
 func parseExecTor(fullname string, arguments []string) error {
 	var cfg *Config
 

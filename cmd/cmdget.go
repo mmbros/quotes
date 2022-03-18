@@ -8,6 +8,24 @@ import (
 	"github.com/mmbros/quote/internal/quote"
 )
 
+const usageGet = `Usage:
+%s [options]
+
+Options:
+-c, --config      path     config file (default is $HOME/.quote.yaml)
+	--config-type string   used if config file does not have the extension in the name;
+						   accepted values are: YAML, TOML and JSON 
+-i, --isins       strings  list of isins to get the quotes
+-n, --dry-run              perform a trial run with no request/updates made
+-p, --proxy       url      default proxy
+-s, --sources     strings  list of sources to get the quotes from
+-w, --workers     int      number of workers (default 1)
+-d, --database    dns      sqlite3 database used to save the quotes
+-m, --mode        char     result mode: "1" first success or last error (default)
+										"U" all errors until first success 
+										"A" all 
+`
+
 func parseExecGet(fullname string, arguments []string) error {
 	var cfg *Config
 

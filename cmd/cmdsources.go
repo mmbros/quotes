@@ -10,6 +10,12 @@ import (
 	"github.com/mmbros/quote/internal/quote"
 )
 
+const usageSources = `Usage:
+%s
+
+Prints list of available sources.
+`
+
 func parseExecSources(fullname string, arguments []string) error {
 
 	// parse the arguments
@@ -31,8 +37,7 @@ func parseExecSources(fullname string, arguments []string) error {
 	return nil
 }
 
-func execSources(w io.Writer)  {
+func execSources(w io.Writer) {
 	sources := quote.Sources()
 	fmt.Fprintf(w, "Available sources: \"%s\"\n", strings.Join(sources, "\", \""))
-
 }
