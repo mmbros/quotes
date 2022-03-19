@@ -49,6 +49,7 @@ type Config struct {
 	Mode     string                 `json:"mode,omitempty"`
 
 	taskengMode taskengine.Mode
+	cfi         *configfile.Info
 }
 
 // String returns a json string representation of the object.
@@ -502,7 +503,6 @@ func (cfg *Config) SourceIsinsList() []*quote.SourceIsins {
 func NewConfig(cfi *configfile.Info, flags *Flags, allSources []string) (*Config, error) {
 	var err error
 	var data []byte
-	var dataformat string
 
 	// 1. read config file, if  not empty
 	if cfi != nil && cfi.Path() != "" {
@@ -510,19 +510,19 @@ func NewConfig(cfi *configfile.Info, flags *Flags, allSources []string) (*Config
 		if err != nil {
 			return nil, err
 		}
-		dataformat = cfi.Format()
 	}
 
-	return auxNewConfig(data, dataformat, flags, allSources)
+	return auxNewConfig(data, cfi, flags, allSources)
 }
 
-func auxNewConfig(data []byte, dataformat string, flags *Flags, allSources []string) (*Config, error) {
+// cfi can be nil for test pourpose
+func auxNewConfig(data []byte, cfi *configfile.Info, flags *Flags, allSources []string) (*Config, error) {
 	var err error
-	cfg := &Config{}
+	cfg := &Config{cfi: cfi}
 
 	// 1. unmarshall the data, if not empty
 	if (data != nil) && (len(data) > 0) {
-		err = unmarshal(data, cfg, dataformat)
+		err = unmarshal(data, cfg, cfi.Format())
 	}
 
 	// 2. normalize config variables

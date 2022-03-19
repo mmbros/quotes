@@ -216,7 +216,7 @@ func TestUnmarshalError(t *testing.T) {
 // 	return args, err
 // }
 
-func initAppGetArgs(options string) (*Flags, error) {
+func initAppGetFlags(options string) (*Flags, error) {
 	fullname := "app get"
 	arguments := strings.Split(options, " ")
 
@@ -336,8 +336,8 @@ isins:
 	}
 	for title, c := range cases {
 
-		args, _ := initAppGetArgs(c.argtxt)
-		cfg, err := auxNewConfig([]byte(c.cfgtxt), args.configType, args, availableSources)
+		flags, _ := initAppGetFlags(c.argtxt)
+		cfg, err := auxNewConfig([]byte(c.cfgtxt), nil, flags, availableSources)
 
 		if c.errmsg != "" {
 			if assert.Error(t, err, title) {
@@ -428,9 +428,9 @@ sources:
 	}
 	for title, c := range cases {
 
-		args, err := initAppGetArgs(c.argtxt)
+		flags, err := initAppGetFlags(c.argtxt)
 		require.NoError(t, err)
-		cfg, err := auxNewConfig([]byte(c.cfgtxt), args.configType, args, availableSources)
+		cfg, err := auxNewConfig([]byte(c.cfgtxt), nil, flags, availableSources)
 
 		if c.errmsg != "" {
 			if assert.Error(t, err, title) {
@@ -515,9 +515,9 @@ func TestIsin(t *testing.T) {
 				t.Log(title)
 			}
 
-			args, err := initAppGetArgs(c.argtxt)
+			flags, err := initAppGetFlags(c.argtxt)
 			require.NoError(t, err)
-			cfg, err := auxNewConfig([]byte(c.cfgtxt), args.configType, args, availableSources)
+			cfg, err := auxNewConfig([]byte(c.cfgtxt), nil, flags, availableSources)
 
 			if c.errmsg != "" {
 				if assert.Error(t, err, title) {
@@ -645,9 +645,9 @@ disabled = true
 	for title, tt := range tests {
 		t.Run(title, func(t *testing.T) {
 
-			args, err := initAppGetArgs(tt.argtxt)
+			flags, err := initAppGetFlags(tt.argtxt)
 			require.NoError(t, err)
-			cfg, err := auxNewConfig([]byte(tt.cfgtxt), args.configType, args, availableSources)
+			cfg, err := auxNewConfig([]byte(tt.cfgtxt), nil, flags, availableSources)
 
 			if tt.errmsg != "" {
 				if assert.Error(t, err, title) {
@@ -696,9 +696,9 @@ func TestDatabase(t *testing.T) {
 	for title, c := range cases {
 		t.Run(title, func(t *testing.T) {
 
-			args, err := initAppGetArgs(c.argtxt)
+			flags, err := initAppGetFlags(c.argtxt)
 			require.NoError(t, err)
-			cfg, err := auxNewConfig([]byte(c.cfgtxt), args.configType, args, availableSources)
+			cfg, err := auxNewConfig([]byte(c.cfgtxt), nil, flags, availableSources)
 
 			if c.errmsg != "" {
 				if assert.Error(t, err, title) {
@@ -781,9 +781,9 @@ isins:
 	}
 	for title, c := range cases {
 
-		args, err := initAppGetArgs(c.argtxt)
+		flags, err := initAppGetFlags(c.argtxt)
 		require.NoError(t, err)
-		cfg, err := auxNewConfig([]byte(c.cfgtxt), args.configType, args, availableSources)
+		cfg, err := auxNewConfig([]byte(c.cfgtxt), nil, flags, availableSources)
 
 		if c.errmsg != "" {
 			if assert.Error(t, err, title) {
