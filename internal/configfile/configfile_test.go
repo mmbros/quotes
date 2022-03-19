@@ -58,6 +58,10 @@ func Test_Format(t *testing.T) {
 		got := i.Format()
 		assert.Equal(t, c.want, got, c)
 	}
+
+	var nilInfo *Info
+	got := nilInfo.Format()
+	assert.Equal(t, "", got, "nil Info")
 }
 
 func Test_newInfoFromCommandLine(t *testing.T) {

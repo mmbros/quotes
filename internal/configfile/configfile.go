@@ -35,9 +35,13 @@ func (i *Info) Path() string {
 // Format returns the (lowercase) data format base the following criteria:
 // 1. the explicitly passed format, or
 // 2. the extension of the path without the leading "."
+// It returns "" in case of nil object.
 func (i *Info) Format() string {
 	var s string
 
+	if i == nil {
+		return s
+	}
 	if i.format != "" {
 		s = i.format
 	} else {
