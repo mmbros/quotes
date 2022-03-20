@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/mmbros/quote/internal/configfile"
 	"github.com/mmbros/quote/internal/quote"
 	"github.com/mmbros/quote/pkg/taskengine"
 	"github.com/stretchr/testify/assert"
@@ -228,6 +229,16 @@ func initAppGetFlags(options string) (*Flags, error) {
 	return flags, err
 }
 
+func getCFI(flags *Flags) *configfile.Info {
+	appname := flags.Appname()
+
+	// only for test pourpose, chheck configType
+	passed := flags.IsPassed(namesConfig) || (flags.configType != "")
+
+	cfi, _ := configfile.NewInfo(appname, "", flags.config, flags.configType, passed)
+	return cfi
+}
+
 func TestWorkers(t *testing.T) {
 	availableSources := []string{"source1"}
 
@@ -337,7 +348,7 @@ isins:
 	for title, c := range cases {
 
 		flags, _ := initAppGetFlags(c.argtxt)
-		cfg, err := auxNewConfig([]byte(c.cfgtxt), nil, flags, availableSources)
+		cfg, err := auxNewConfig([]byte(c.cfgtxt), getCFI(flags), flags, availableSources)
 
 		if c.errmsg != "" {
 			if assert.Error(t, err, title) {
@@ -430,7 +441,7 @@ sources:
 
 		flags, err := initAppGetFlags(c.argtxt)
 		require.NoError(t, err)
-		cfg, err := auxNewConfig([]byte(c.cfgtxt), nil, flags, availableSources)
+		cfg, err := auxNewConfig([]byte(c.cfgtxt), getCFI(flags), flags, availableSources)
 
 		if c.errmsg != "" {
 			if assert.Error(t, err, title) {
@@ -517,7 +528,7 @@ func TestIsin(t *testing.T) {
 
 			flags, err := initAppGetFlags(c.argtxt)
 			require.NoError(t, err)
-			cfg, err := auxNewConfig([]byte(c.cfgtxt), nil, flags, availableSources)
+			cfg, err := auxNewConfig([]byte(c.cfgtxt), getCFI(flags), flags, availableSources)
 
 			if c.errmsg != "" {
 				if assert.Error(t, err, title) {
@@ -647,7 +658,7 @@ disabled = true
 
 			flags, err := initAppGetFlags(tt.argtxt)
 			require.NoError(t, err)
-			cfg, err := auxNewConfig([]byte(tt.cfgtxt), nil, flags, availableSources)
+			cfg, err := auxNewConfig([]byte(tt.cfgtxt), getCFI(flags), flags, availableSources)
 
 			if tt.errmsg != "" {
 				if assert.Error(t, err, title) {
@@ -698,7 +709,7 @@ func TestDatabase(t *testing.T) {
 
 			flags, err := initAppGetFlags(c.argtxt)
 			require.NoError(t, err)
-			cfg, err := auxNewConfig([]byte(c.cfgtxt), nil, flags, availableSources)
+			cfg, err := auxNewConfig([]byte(c.cfgtxt), getCFI(flags), flags, availableSources)
 
 			if c.errmsg != "" {
 				if assert.Error(t, err, title) {
