@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -385,6 +386,40 @@ func TestNewInfo(t *testing.T) {
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewInfo() = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+
+func Test_Fprintln(t *testing.T) {
+	tests := map[string]struct {
+		info *Info
+		want string
+	}{
+		"nil":  {nil, "not defined"},
+		"zero": {&Info{}, "not defined"},
+		"none": {&Info{"", "", srcNone}, "not defined"},
+
+		"cmdline empty": {&Info{"", "", srcCommandLine}, "skipped by command"},
+		"cmdline path":  {&Info{"path", "", srcCommandLine}, "path\" from command-line"},
+
+		"env empty": {&Info{"", "", srcEnvironment}, "skipped by env"},
+		"env path":  {&Info{"path", "", srcEnvironment}, "path\" from env"},
+
+		"defaults path": {&Info{"path", "", srcDefaults}, "path\" from def"},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+
+			var wout strings.Builder
+
+			tt.info.Fprintln(&wout)
+
+			got := wout.String()
+			if !strings.Contains(got, tt.want) {
+				t.Errorf("Fprintln() = %q does not contain %q", got, tt.want)
+			}
+
 		})
 	}
 }

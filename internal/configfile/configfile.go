@@ -1,6 +1,8 @@
 package configfile
 
 import (
+	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -52,6 +54,33 @@ func (i *Info) Format() string {
 	}
 
 	return strings.ToLower(s)
+}
+
+func (n EnumSource) String() string {
+	switch n {
+	case srcNone:
+		return "none"
+	case srcCommandLine:
+		return "command-line"
+	case srcEnvironment:
+		return "environment"
+	case srcDefaults:
+		return "default paths"
+	default:
+		return "unknown source"
+	}
+}
+
+// Fprintln prints the inforation about the config filee
+func (i *Info) Fprintln(w io.Writer) {
+	fmt.Fprint(w, "Configuration file: ")
+	if i == nil || i.Source == srcNone {
+		fmt.Fprintln(w, "not defined")
+	} else if i.path == "" {
+		fmt.Fprintf(w, "skipped by %s\n", i.Source)
+	} else {
+		fmt.Fprintf(w, "using %q from %s\n", i.path, i.Source)
+	}
 }
 
 // sanitizeEnvKey ...
