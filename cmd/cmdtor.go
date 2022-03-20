@@ -51,12 +51,30 @@ func parseExecTor(fullname string, arguments []string) error {
 }
 
 func execTor(flags *Flags, cfg *Config) error {
+
 	if flags.IsPassed(namesConfig) {
 		fmt.Printf("Using configuration file %q\n", flags.config)
 	}
 	proxy := cfg.Proxy
-	// proxy = "x://\\"
-	fmt.Printf("Checking Tor connection with proxy %q\n", proxy)
+
+	var proxyEnv string
+	if proxy == "" {
+		proxyEnv = quote.TorProxyFromEnvironment()
+	} else {
+		proxyEnv = proxy
+	}
+
+	fmt.Print("Checking Tor connection with ")
+	if proxyEnv == "" {
+		fmt.Print("no proxy")
+	} else {
+		fmt.Printf("proxy %q", proxyEnv)
+		if proxy == "" {
+			fmt.Print(" from HTTPS_PROXY environment variable")
+		}
+	}
+	fmt.Println(".")
+
 	_, msg, err := quote.TorCheck(proxy)
 	if err == nil {
 		// ok checking Tor network:
