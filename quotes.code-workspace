@@ -15,27 +15,34 @@
 				"mode": "auto",
 				"program-OLD": "${fileDirname}",
 				"program": "${workspaceFolder}/main.go",
-				"args": ["s", "-h"]
+				"args": ["-h"]
 			},
 			{
 				"name": "get --dry-run",
 				"type": "go",
 				"request": "launch",
 				"mode": "auto",
-				"program-OLD": "${fileDirname}",
 				"program": "${workspaceFolder}/main.go",
 				"env": {"HTTPS_PROXY": "socks5://127.0.0.1:9050"},
-				"args": ["get", "-n"]
+				"args": ["get", "-n", "-c", "/home/mau/mauro.quote.yaml"]
 			},
 			{
 				"name": "sources",
 				"type": "go",
 				"request": "launch",
 				"mode": "auto",
-				"program-OLD": "${fileDirname}",
 				"program": "${workspaceFolder}/main.go",
 				"args": ["s"]
 			},			
+			{
+				"name": "tor",
+				"type": "go",
+				"request": "launch",
+				"mode": "auto",
+				"program": "${workspaceFolder}/main.go",
+				"env": {"HTTPS_PROXY": "socks5://127.0.0.1:9050"},
+				"args": ["tor"]
+			},		
 		]
 	}
 }
