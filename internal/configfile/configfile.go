@@ -78,6 +78,8 @@ func (i *Info) Fprintln(w io.Writer) {
 		fmt.Fprintln(w, "not defined")
 	} else if i.path == "" {
 		fmt.Fprintf(w, "skipped by %s\n", i.Source)
+	} else if i.format != "" {
+		fmt.Fprintf(w, "using %q (type=%q) from %s\n", i.path, i.format, i.Source)
 	} else {
 		fmt.Fprintf(w, "using %q from %s\n", i.path, i.Source)
 	}

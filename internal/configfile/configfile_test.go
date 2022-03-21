@@ -397,15 +397,21 @@ func Test_Fprintln(t *testing.T) {
 	}{
 		"nil":  {nil, "not defined"},
 		"zero": {&Info{}, "not defined"},
-		"none": {&Info{"", "", srcNone}, "not defined"},
 
-		"cmdline empty": {&Info{"", "", srcCommandLine}, "skipped by command"},
-		"cmdline path":  {&Info{"path", "", srcCommandLine}, "path\" from command-line"},
+		"none empty":     {&Info{"", "", srcNone}, "not defined"},
+		"none type only": {&Info{"", "toml", srcNone}, "not defined"},
 
-		"env empty": {&Info{"", "", srcEnvironment}, "skipped by env"},
-		"env path":  {&Info{"path", "", srcEnvironment}, "path\" from env"},
+		"cmdline empty":       {&Info{"", "", srcCommandLine}, "skipped by command"},
+		"cmdline type only":   {&Info{"", "json", srcCommandLine}, "skipped by command"},
+		"cmdline path":        {&Info{"path/to/file.toml", "", srcCommandLine}, `"path/to/file.toml" from command-line`},
+		"cmdline path & type": {&Info{"path/to/file.toml", "yaml", srcCommandLine}, `"path/to/file.toml" (type="yaml") from command-line`},
 
-		"defaults path": {&Info{"path", "", srcDefaults}, "path\" from def"},
+		"env empty":       {&Info{"", "", srcEnvironment}, "skipped by environment"},
+		"env type only":   {&Info{"", "json", srcEnvironment}, "skipped by environment"},
+		"env path":        {&Info{"path/to/file.ext", "", srcEnvironment}, `"path/to/file.ext" from environment`},
+		"env path & type": {&Info{"path/to/file.ext", "toml", srcEnvironment}, `"path/to/file.ext" (type="toml") from environment`},
+
+		"defaults path": {&Info{"path/to/file.ext", "", srcDefaults}, `"path/to/file.ext" from def`},
 	}
 
 	for name, tt := range tests {
