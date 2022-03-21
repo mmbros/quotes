@@ -75,15 +75,17 @@ func execGet(flags *Flags, cfg *Config) error {
 }
 
 func printDryRunInfo(w io.Writer, flags *Flags, cfg *Config) error {
-	fmt.Fprintln(w, "Dry Run")
-	if flags.IsPassed(namesConfig) {
-		fmt.Fprintf(w, "Using configuration file %q\n", flags.config)
-	}
+
+	fmt.Fprintf(w, "%s: Dry Run\n", flags.fullname)
+
+	// prints config file info
+	cfg.cfi.Fprintln(w)
+
 	if cfg.Database != "" {
 		fmt.Fprintf(w, "Database: %q\n", cfg.Database)
 	}
-	fmt.Fprintf(w, "Mode: %q (%d)\n", cfg.Mode, cfg.taskengMode)
+	fmt.Fprintf(w, "Mode: %q\n", cfg.Mode)
 	sis := cfg.SourceIsinsList()
-	fmt.Fprint(w, "Tasks:", jsonString(sis))
+	fmt.Fprint(w, "Tasks: ", jsonString(sis))
 	return nil
 }

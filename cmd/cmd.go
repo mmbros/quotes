@@ -15,6 +15,9 @@ Available Commands:
     get (g)      Get the quotes of the specified isins
     sources (s)  Show available sources
     tor (t)      Checks if Tor network will be used
+
+Common options:
+    -h, --help   Help informations
 `
 
 func initApp() *flagx.Command {

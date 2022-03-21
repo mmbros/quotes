@@ -30,7 +30,7 @@ func Test_GetDryRun(t *testing.T) {
 		},
 		"app get -n (with config)": {
 			cmdline: "app get -n --config " + fname,
-			want:    "Using configuration file",
+			want:    fname,
 		},
 	}
 	for title, tc := range testCases {

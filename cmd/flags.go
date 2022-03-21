@@ -55,6 +55,29 @@ type Flags struct {
 }
 
 func NewFlags(fullname string, flagsgroup flagsGroup) *Flags {
+	/*
+	   ALL
+	   - help (implicit)
+
+	   GET
+	   - config
+	   - config-type
+	   - database
+	   - dry-run
+	   - isins
+	   - mode
+	   - proxy
+	   - sources
+	   - workers
+
+	   TOR
+	   - config
+	   - config-type
+	   - proxy
+
+	   SOURCES
+
+	*/
 
 	fs := flag.NewFlagSet(fullname, flag.ContinueOnError)
 
@@ -65,22 +88,13 @@ func NewFlags(fullname string, flagsgroup flagsGroup) *Flags {
 	// use the same output as flag.CommandLine
 	fs.SetOutput(flag.CommandLine.Output())
 
-	// flagx.AliasedStringVar(fs, &args.Config, app.NamesConfig, "", "config file")
-	// flagx.AliasedStringVar(fs, &args.ConfigType, app.NamesConfigType, "", "used if config file does not have the extension in the name; accepted values are: YAML, TOML and JSON")
-	// flagx.AliasedBoolVar(fs, &args.Dryrun, app.NamesDryrun, false, "perform a trial run with no request/updates made")
-	// flagx.AliasedStringVar(fs, &args.Proxy, app.NamesProxy, "", "default proxy")
-	// flagx.AliasedIntVar(fs, &args.Workers, app.NamesWorkers, app.DefaultWorkers, "number of workers")
-	// flagx.AliasedStringVar(fs, &args.Database, app.NamesDatabase, "", "sqlite3 database used to save the quotes")
-	// flagx.AliasedStringVar(fs, &args.Mode, app.NamesMode, app.DefaultMode, `result mode: "1" first success or last error (default), "U" all errors until first success, "A" all`)
-	// flagx.AliasedStringsVar(fs, &args.Isins, app.NamesIsins, "list of isins to get the quotes")
-	// flagx.AliasedStringsVar(fs, &args.Sources, app.NamesSources, "list of sources to get the quotes from")
-
 	// flags common to all operation
-	flagx.AliasedStringVar(fs, &flags.config, namesConfig, "", "")
-	flagx.AliasedStringVar(fs, &flags.configType, namesConfigType, "", "")
 
 	// flags for Get or Tor operation
 	if flagsgroup == fgAppGet || flagsgroup == fgAppTor {
+		flagx.AliasedStringVar(fs, &flags.config, namesConfig, "", "")
+		flagx.AliasedStringVar(fs, &flags.configType, namesConfigType, "", "")
+
 		flagx.AliasedStringVar(fs, &flags.proxy, namesProxy, "", "")
 	}
 
@@ -94,9 +108,6 @@ func NewFlags(fullname string, flagsgroup flagsGroup) *Flags {
 		flagx.AliasedStringsVar(fs, &flags.isins, namesIsins, "")
 		flagx.AliasedStringsVar(fs, &flags.sources, namesSources, "")
 	}
-	// fs.Usage = func() {
-	// 	fmt.Fprintf(fs.Output(), usage, fullname)
-	// }
 
 	return flags
 }
