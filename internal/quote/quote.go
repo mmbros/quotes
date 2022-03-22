@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/mmbros/quote/internal/quotegetter"
-	"github.com/mmbros/quote/internal/quotegetter/scrapers"
-	"github.com/mmbros/quote/internal/quotegetterdb"
-	"github.com/mmbros/quote/pkg/taskengine"
+	"github.com/mmbros/quotes/internal/quotegetter"
+	"github.com/mmbros/quotes/internal/quotegetter/scrapers"
+	"github.com/mmbros/quotes/internal/quotegetterdb"
+	"github.com/mmbros/quotes/pkg/taskengine"
 )
 
 // SourceIsins struct represents the isins to get from a specific source

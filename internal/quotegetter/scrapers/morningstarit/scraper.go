@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/mmbros/quote/internal/quotegetter"
-	"github.com/mmbros/quote/internal/quotegetter/scrapers"
+	"github.com/mmbros/quotes/internal/quotegetter"
+	"github.com/mmbros/quotes/internal/quotegetter/scrapers"
 )
 
 // scraper gets stock/fund prices from www.morningstar.it

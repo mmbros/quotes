@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/mmbros/quote/internal/quote"
+	"github.com/mmbros/quotes/internal/quote"
 )
 
 const usageGet = `Usage: 

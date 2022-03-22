@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/mmbros/quote/internal/quotegetter"
+	"github.com/mmbros/quotes/internal/quotegetter"
 )
 
 // Scraper interface

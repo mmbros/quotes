@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/mmbros/quote/internal/quote"
+	"github.com/mmbros/quotes/internal/quote"
 )
 
 const usageSources = `Usage:

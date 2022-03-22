@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mmbros/quote/internal/quotetesting"
+	"github.com/mmbros/quotes/internal/quotetesting"
 )
 
 func TestDoHTTPRequestWithTimeout(t *testing.T) {

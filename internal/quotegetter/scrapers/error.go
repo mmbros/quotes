@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/mmbros/quote/internal/quotegetter"
+	"github.com/mmbros/quotes/internal/quotegetter"
 )
 
 // ErrorType is ...

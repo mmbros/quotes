@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/mmbros/quote/internal/quote"
+	"github.com/mmbros/quotes/internal/quote"
 )
 
 const usageTor = `Usage:

@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mmbros/quote/internal/quotegetter/scrapers"
-	"github.com/mmbros/quote/internal/quotegetter/scrapers/testingscraper"
+	"github.com/mmbros/quotes/internal/quotegetter/scrapers"
+	"github.com/mmbros/quotes/internal/quotegetter/scrapers/testingscraper"
 )
 
 func getTestScraper() scrapers.Scraper {

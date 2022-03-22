@@ -1,6 +1,6 @@
-module github.com/mmbros/quote
+module github.com/mmbros/quotes
 
-go 1.17
+go 1.18
 
 require (
 	github.com/PuerkitoBio/goquery v1.8.0
@@ -8,7 +8,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.12
 	github.com/mmbros/flagx v0.1.0
 	github.com/pelletier/go-toml v1.9.4
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
 

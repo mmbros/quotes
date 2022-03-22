@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/mmbros/quote/internal/quotegetter"
-	"github.com/mmbros/quote/internal/quotegetter/jsons/cryptonatorcom"
-	"github.com/mmbros/quote/internal/quotegetter/scrapers/fondidocit"
-	"github.com/mmbros/quote/internal/quotegetter/scrapers/fundsquarenet"
-	"github.com/mmbros/quote/internal/quotegetter/scrapers/morningstarit"
+	"github.com/mmbros/quotes/internal/quotegetter"
+	"github.com/mmbros/quotes/internal/quotegetter/jsons/cryptonatorcom"
+	"github.com/mmbros/quotes/internal/quotegetter/scrapers/fondidocit"
+	"github.com/mmbros/quotes/internal/quotegetter/scrapers/fundsquarenet"
+	"github.com/mmbros/quotes/internal/quotegetter/scrapers/morningstarit"
 )
 
 type fnNewQuoteGetter func(string, *http.Client) quotegetter.QuoteGetter

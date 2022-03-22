@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/mmbros/quote/internal/quotegetter"
+	"github.com/mmbros/quotes/internal/quotegetter"
 )
 
 // URL to check for TOR network

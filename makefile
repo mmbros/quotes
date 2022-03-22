@@ -1,4 +1,4 @@
-INFO = github.com/mmbros/quote/cmd
+INFO = github.com/mmbros/quotes/cmd
 
 VERSION := $(shell git tag | grep ^v | sort -V | tail -n 1)
 # GOXVER := $(shell go version | awk '{print $$3}')

@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/mmbros/quote/internal/quotegetter/scrapers/testingscraper"
-	"github.com/mmbros/quote/internal/quotetesting"
+	"github.com/mmbros/quotes/internal/quotegetter/scrapers/testingscraper"
+	"github.com/mmbros/quotes/internal/quotetesting"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

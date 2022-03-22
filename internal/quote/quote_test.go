@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mmbros/quote/internal/quotegetter"
-	"github.com/mmbros/quote/pkg/taskengine"
+	"github.com/mmbros/quotes/internal/quotegetter"
+	"github.com/mmbros/quotes/pkg/taskengine"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -20,7 +20,7 @@ package main
 import (
 	"os"
 
-	"github.com/mmbros/quote/cmd"
+	"github.com/mmbros/quotes/cmd"
 )
 
 func main() {

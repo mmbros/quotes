@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/mmbros/quote/internal/errors"
+	"github.com/mmbros/quotes/internal/errors"
 )
 
 type EnumSource int

@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mmbros/quote/internal/quotegetter"
+	"github.com/mmbros/quotes/internal/quotegetter"
 )
 
 // getter gets cryptocurrrencies prices from cryptonator.com
