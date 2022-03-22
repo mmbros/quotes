@@ -18,19 +18,21 @@ const (
 	fgAppGet
 	fgAppTor
 	fgAppSources
+	fgAppVersion
 )
 
 // Names of the command line arguments (flagx names)
 const (
-	namesConfig     = "config,c"
-	namesConfigType = "config-type"
-	namesDatabase   = "database,d"
-	namesDryrun     = "dry-run,n"
-	namesIsins      = "isins,i"
-	namesMode       = "mode,m"
-	namesProxy      = "proxy,p"
-	namesSources    = "sources,s"
-	namesWorkers    = "workers,w"
+	namesConfig       = "config,c"
+	namesConfigType   = "config-type"
+	namesDatabase     = "database,d"
+	namesDryrun       = "dry-run,n"
+	namesIsins        = "isins,i"
+	namesMode         = "mode,m"
+	namesProxy        = "proxy,p"
+	namesSources      = "sources,s"
+	namesWorkers      = "workers,w"
+	namesBuildOptions = "build-options,b"
 )
 
 // Default args value
@@ -77,6 +79,8 @@ func NewFlags(fullname string, flagsgroup flagsGroup) *Flags {
 
 	   SOURCES
 
+	   VERSION
+
 	*/
 
 	fs := flag.NewFlagSet(fullname, flag.ContinueOnError)
@@ -107,6 +111,12 @@ func NewFlags(fullname string, flagsgroup flagsGroup) *Flags {
 		flagx.AliasedStringVar(fs, &flags.mode, namesMode, defaultMode, "")
 		flagx.AliasedStringsVar(fs, &flags.isins, namesIsins, "")
 		flagx.AliasedStringsVar(fs, &flags.sources, namesSources, "")
+	}
+
+	// flags only for Version operation
+	if flagsgroup == fgAppVersion {
+		// NOTE build-options flag is saved in dryrun bool
+		flagx.AliasedBoolVar(fs, &flags.dryrun, namesBuildOptions, false, "")
 	}
 
 	return flags
