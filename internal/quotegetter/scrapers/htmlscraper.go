@@ -13,7 +13,8 @@ import (
 	"github.com/mmbros/quotes/internal/quotegetter"
 )
 
-// Scraper interface
+// Scraper interface. An object implementing the Scraper interface 
+// can be used to satisfy the QuoteGetter interface also.
 type Scraper interface {
 	Source() string
 	Client() *http.Client
@@ -32,12 +33,12 @@ type ParseInfoResult struct {
 	DateLayout  string
 }
 
-// quoteGetter is ...
+// quoteGetter is a struct that implements the Scraper interface
 type quoteGetter struct {
 	Scraper
 }
 
-// NewQuoteGetter is ..
+// NewQuoteGetter trasforms a Scraper to a quotegetter.QuoteGetter interface
 func NewQuoteGetter(scr Scraper) quotegetter.QuoteGetter {
 	return &quoteGetter{scr}
 }
@@ -47,7 +48,7 @@ func NewQuoteGetter(scr Scraper) quotegetter.QuoteGetter {
 // 	quotegetter.Register(newQuoteGetter(scr))
 // }
 
-// GetQuote is ...
+// GetQuote implements the method of the QuoteGetter interface
 func (qg *quoteGetter) GetQuote(ctx context.Context, isin, url string) (*quotegetter.Result, error) {
 	return getQuote(ctx, isin, url, qg)
 }

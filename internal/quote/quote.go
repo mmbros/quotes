@@ -21,18 +21,23 @@ type SourceIsins struct {
 	Isins   []string `json:"isins,omitempty"`
 }
 
+// taskGetQuote struct contains the info for retrieve the quote by a source.
+// It implements the taskengine.Task interface
 type taskGetQuote struct {
 	isin string
 	url  string
 }
 
+// TaskID method of the taskengine.Task interface
 func (t *taskGetQuote) TaskID() taskengine.TaskID {
 	return taskengine.TaskID(t.isin)
 }
 
+// resultGetQuote contains the result informations of the retrieved quote.
+// It implements the taskengine.Result interface.
+//
 // resultGetQuote.Date field is a pointer in order to omit zero dates.
 // see https://stackoverflow.com/questions/32643815/json-omitempty-with-time-time-field
-
 type resultGetQuote struct {
 	Isin      string     `json:"isin,omitempty"`
 	Source    string     `json:"source,omitempty"`
@@ -47,6 +52,7 @@ type resultGetQuote struct {
 	Err       error      `json:"-"`
 }
 
+// Success method of the taskengine.Result interface
 func (r *resultGetQuote) Success() bool {
 	return r.Err == nil
 }
@@ -110,6 +116,7 @@ func dbInsert(dbpath string, results []*resultGetQuote) error {
 	return nil
 }
 
+// checkListOfSourceIsins checks the validity of the given SourceIsins items
 func checkListOfSourceIsins(items []*SourceIsins) error {
 	used := map[string]struct{}{}
 
@@ -157,6 +164,7 @@ func Get(items []*SourceIsins, dbpath string, mode taskengine.Mode) error {
 	return nil
 }
 
+// getResults executes the tasks in order to retrieve the quotes.
 func getResults(items []*SourceIsins, mode taskengine.Mode) ([]*resultGetQuote, error) {
 
 	// check input
@@ -181,7 +189,9 @@ func getResults(items []*SourceIsins, mode taskengine.Mode) ([]*resultGetQuote, 
 
 		// work function of the source
 		wfn := func(ctx context.Context, inst int, task taskengine.Task) taskengine.Result {
+			//  from taskengine.Task to taskGetQuote
 			t := task.(*taskGetQuote)
+
 			time1 := time.Now()
 			res, err := qg.GetQuote(ctx, t.isin, t.url)
 			time2 := time.Now()
