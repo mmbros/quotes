@@ -7,6 +7,7 @@ import (
 	"github.com/mmbros/quotes/internal/quotegetter"
 	"github.com/mmbros/quotes/internal/quotegetter/scrapers/fondidocit"
 	"github.com/mmbros/quotes/internal/quotegetter/scrapers/fundsquarenet"
+	"github.com/mmbros/quotes/internal/quotegetter/scrapers/googlecrypto"
 	"github.com/mmbros/quotes/internal/quotegetter/scrapers/morningstarit"
 )
 
@@ -26,6 +27,7 @@ func init() {
 		"fundsquarenet": fundsquarenet.NewQuoteGetter,
 		// "cryptonatorcom-EUR": fnCryptonatorcom("EUR"),
 		// "cryptonatorcom-USD": fnCryptonatorcom("USD"),
+		"googlecrypto-EUR": googlecrypto.NewQuoteGetterFactory("EUR"),
 	}
 
 }
