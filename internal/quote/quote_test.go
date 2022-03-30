@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/mmbros/quotes/internal/quotegetter"
-	"github.com/mmbros/quotes/pkg/taskengine"
+	"github.com/mmbros/taskengine"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -71,7 +71,7 @@ func (qg *dummyQuoteGetter) GetQuote(ctx context.Context, isin, url string) (*qu
 }
 
 func TestCheckListOfSourceIsins(t *testing.T) {
-	availableSources = map[string]fnNewQuoteGetter{
+	availableSources = map[string]quotegetter.NewQuoteGetterFunc{
 		"source1": newDummyQuoteGetter,
 		"source2": newDummyQuoteGetter,
 	}
@@ -150,7 +150,7 @@ func TestCheckListOfSourceIsins(t *testing.T) {
 }
 
 func TestGetResults(t *testing.T) {
-	availableSources = map[string]fnNewQuoteGetter{
+	availableSources = map[string]quotegetter.NewQuoteGetterFunc{
 		"source1": newDummyQuoteGetter,
 		"source2": newDummyQuoteGetter,
 	}

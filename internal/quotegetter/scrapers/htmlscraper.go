@@ -13,8 +13,14 @@ import (
 	"github.com/mmbros/quotes/internal/quotegetter"
 )
 
-// Scraper interface. An object implementing the Scraper interface 
+// date layout for unix timestamp: convert to time using time.Unix
+const LayoutUnixTimestamp string = "unix"
+
+// Scraper interface. An object implementing the Scraper interface
 // can be used to satisfy the QuoteGetter interface also.
+//
+// The GetQuote function of the QuoteGetter is made up by
+// the GetSearch, ParseSearch, GetInfo and ParseInfo function.
 type Scraper interface {
 	Source() string
 	Client() *http.Client
@@ -224,6 +230,16 @@ func parseDate(str, layout string) (time.Time, error) {
 	if str == "" {
 		return t, ErrDateNotFound
 	}
+
+	// handle unix timestamp
+	if layout == LayoutUnixTimestamp {
+		i, err := strconv.ParseInt(str, 10, 64)
+		if err != nil {
+			return t, err
+		}
+		return time.Unix(i, 0).UTC(), nil
+	}
+
 	loc, err := time.LoadLocation("Europe/Rome")
 	if err != nil {
 		return t, err

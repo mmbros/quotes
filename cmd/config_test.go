@@ -7,7 +7,7 @@ import (
 
 	"github.com/mmbros/quotes/internal/configfile"
 	"github.com/mmbros/quotes/internal/quote"
-	"github.com/mmbros/quotes/pkg/taskengine"
+	"github.com/mmbros/taskengine"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

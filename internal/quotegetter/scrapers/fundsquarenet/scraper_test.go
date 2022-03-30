@@ -12,12 +12,8 @@ func getTestScraper() scrapers.Scraper {
 	return &scraper{"fundsquarenet", nil}
 }
 
-func TestSource(t *testing.T) {
-	const name = "dummy"
-	scr := &scraper{name, nil}
-	if nameFound := scr.Source(); nameFound != name {
-		t.Errorf("Source: found %q, expected %q", nameFound, name)
-	}
+func TestNewQuoteGetter(t *testing.T) {
+	testingscraper.TestNewQuoteGetter(t, NewQuoteGetter)
 }
 
 func TestGetSearch(t *testing.T) {

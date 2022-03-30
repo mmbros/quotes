@@ -7,6 +7,7 @@ require (
 	github.com/google/go-cmp v0.5.7
 	github.com/mattn/go-sqlite3 v1.14.12
 	github.com/mmbros/flagx v0.1.0
+	github.com/mmbros/taskengine v0.0.0-20220305175119-7a43f419e869
 	github.com/pelletier/go-toml v1.9.4
 	github.com/stretchr/testify v1.7.1
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
@@ -17,5 +18,4 @@ require (
 	github.com/davecgh/go-spew v1.1.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/net v0.0.0-20210916014120-12bc252f5db8 // indirect
-	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 // indirect
 )

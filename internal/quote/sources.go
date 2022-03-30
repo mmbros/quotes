@@ -11,19 +11,17 @@ import (
 	"github.com/mmbros/quotes/internal/quotegetter/scrapers/morningstarit"
 )
 
-type fnNewQuoteGetter func(string, *http.Client) quotegetter.QuoteGetter
-
-var availableSources map[string]fnNewQuoteGetter
+var availableSources map[string]quotegetter.NewQuoteGetterFunc
 
 func init() {
 
-	fnCryptonatorcom := func(currency string) fnNewQuoteGetter {
+	fnCryptonatorcom := func(currency string) quotegetter.NewQuoteGetterFunc {
 		return func(name string, client *http.Client) quotegetter.QuoteGetter {
 			return cryptonatorcom.NewQuoteGetter(name, client, currency)
 		}
 	}
 
-	availableSources = map[string]fnNewQuoteGetter{
+	availableSources = map[string]quotegetter.NewQuoteGetterFunc{
 		"fondidocit":         fondidocit.NewQuoteGetter,
 		"morningstarit":      morningstarit.NewQuoteGetter,
 		"fundsquarenet":      fundsquarenet.NewQuoteGetter,

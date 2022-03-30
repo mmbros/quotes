@@ -10,7 +10,7 @@ import (
 	"github.com/mmbros/quotes/internal/quotegetter"
 	"github.com/mmbros/quotes/internal/quotegetter/scrapers"
 	"github.com/mmbros/quotes/internal/quotegetterdb"
-	"github.com/mmbros/quotes/pkg/taskengine"
+	"github.com/mmbros/taskengine"
 )
 
 // SourceIsins struct represents the isins to get from a specific source

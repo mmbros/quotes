@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -370,4 +371,34 @@ func TestQuoteGetterGetQuote(t *testing.T) {
 		assert.Equal(t, tc.price, res.Price, "%s: Price", prefix)
 	}
 
+}
+
+func Test_parseDate(t *testing.T) {
+	testCases := []struct {
+		str      string
+		layout   string
+		wantTime time.Time
+		err      error
+	}{
+		{"1648247340", LayoutUnixTimestamp, time.Date(2022, 3, 25, 22, 29, 0, 0, time.UTC), nil},
+		{"164824734X", LayoutUnixTimestamp, time.Time{}, strconv.ErrSyntax},
+		{"11111111111111111111", LayoutUnixTimestamp, time.Time{}, strconv.ErrRange},
+		{"23/02/2000", "02/01/2006", time.Date(2000, 2, 23, 0, 0, 0, 0, time.Local), nil},
+	}
+
+	prefix := "parseDate"
+	for _, tc := range testCases {
+
+		gotTime, err := parseDate(tc.str, tc.layout)
+		if testingscraper.CheckError(t, prefix, err, tc.err) {
+			continue
+		}
+
+		if !gotTime.Equal(tc.wantTime) {
+			t.Errorf("%s: expected %s, found %s", prefix, tc.wantTime, gotTime)
+		}
+		// if priceStr != tc.priceStr {
+		// 	t.Errorf("%s: priceStr: expected %s, found %s", prefix, tc.priceStr, priceStr)
+		// }
+	}
 }

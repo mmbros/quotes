@@ -12,7 +12,10 @@ import (
 	"testing"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/mmbros/quotes/internal/quotegetter"
 )
+
+// type NewQuoteGetterFunc func(string, *http.Client) quotegetter.QuoteGetter
 
 // exported constants
 const (
@@ -55,6 +58,20 @@ func CheckError(t *testing.T, prefix string, found, expected error) bool {
 		return true
 	}
 	return found != nil
+}
+
+// TestNewQuoteGetter checks the NewQuoteGetterFunc of a scraper
+func TestNewQuoteGetter(t *testing.T, fn quotegetter.NewQuoteGetterFunc) {
+	wantClient := http.DefaultClient
+	wantSource := "dummy"
+
+	scr := fn(wantSource, wantClient)
+	if scr.Source() != wantSource {
+		t.Errorf("Source: want %q, got %q", wantSource, scr.Source())
+	}
+	if scr.Client() != wantClient {
+		t.Errorf("Client: want %v, got %v", wantClient, scr.Client())
+	}
 }
 
 // TestGetSearch is
@@ -113,7 +130,7 @@ func getBaseDir() string {
 	if err != nil {
 		panic(err)
 	}
-	base := strings.SplitAfter(currentWorkingDirectory, "quote")[0]
+	base := strings.SplitAfter(currentWorkingDirectory, "quotes")[0]
 	return base
 }
 

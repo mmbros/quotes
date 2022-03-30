@@ -1,7 +1,6 @@
 package cryptonatorcom
 
 import (
-	"context"
 	"encoding/json"
 	"testing"
 )
