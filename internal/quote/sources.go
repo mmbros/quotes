@@ -5,7 +5,6 @@ import (
 	"sort"
 
 	"github.com/mmbros/quotes/internal/quotegetter"
-	"github.com/mmbros/quotes/internal/quotegetter/jsons/cryptonatorcom"
 	"github.com/mmbros/quotes/internal/quotegetter/scrapers/fondidocit"
 	"github.com/mmbros/quotes/internal/quotegetter/scrapers/fundsquarenet"
 	"github.com/mmbros/quotes/internal/quotegetter/scrapers/morningstarit"
@@ -15,17 +14,17 @@ var availableSources map[string]quotegetter.NewQuoteGetterFunc
 
 func init() {
 
-	fnCryptonatorcom := func(currency string) quotegetter.NewQuoteGetterFunc {
-		return func(name string, client *http.Client) quotegetter.QuoteGetter {
-			return cryptonatorcom.NewQuoteGetter(name, client, currency)
-		}
-	}
+	// fnCryptonatorcom := func(currency string) quotegetter.NewQuoteGetterFunc {
+	// 	return func(name string, client *http.Client) quotegetter.QuoteGetter {
+	// 		return cryptonatorcom.NewQuoteGetter(name, client, currency)
+	// 	}
+	// }
 
 	availableSources = map[string]quotegetter.NewQuoteGetterFunc{
-		"fondidocit":         fondidocit.NewQuoteGetter,
-		"morningstarit":      morningstarit.NewQuoteGetter,
-		"fundsquarenet":      fundsquarenet.NewQuoteGetter,
-		"cryptonatorcom-EUR": fnCryptonatorcom("EUR"),
+		"fondidocit":    fondidocit.NewQuoteGetter,
+		"morningstarit": morningstarit.NewQuoteGetter,
+		"fundsquarenet": fundsquarenet.NewQuoteGetter,
+		// "cryptonatorcom-EUR": fnCryptonatorcom("EUR"),
 		// "cryptonatorcom-USD": fnCryptonatorcom("USD"),
 	}
 

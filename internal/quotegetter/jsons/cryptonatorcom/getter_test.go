@@ -63,18 +63,20 @@ func TestParseJson(t *testing.T) {
 
 }
 
-func TestGetQuote(t *testing.T) {
-	g := NewQuoteGetter("cryptonator-eur", nil, "EUR")
+// func TestGetQuote(t *testing.T) {
+// 	g := NewQuoteGetter("cryptonator-eur", nil, "EUR")
 
-	ctx := context.Background()
-	r, err := g.GetQuote(ctx, "BTC", "")
+// 	ctx := context.Background()
+// 	r, err := g.GetQuote(ctx, "BTC", "")
 
-	if err != nil {
-		t.Fatalf(err.Error())
-	}
+// 	if err != nil {
+// 		// 2022-03-30 Update:
+// 		// Gives 503 Service Unavailable cause Cloudflare's anti-bot page
+// 		t.Fatalf(err.Error())
+// 	}
 
-	t.Logf("OK %v", r)
+// 	t.Logf("OK %v", r)
 
-	// BTC2 -> Pair not found
-	// EURO -> Pair not found
-}
+// 	// BTC2 -> Pair not found
+// 	// EURO -> Pair not found
+// }
