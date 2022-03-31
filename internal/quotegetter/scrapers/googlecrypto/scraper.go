@@ -55,7 +55,7 @@ func (s *scraper) GetSearch(ctx context.Context, isin string) (*http.Request, er
 // `doc` can be nil if the url of the info page can be build directly from the `isin`.
 // It returns the url of the info page.
 func (s *scraper) ParseSearch(doc *goquery.Document, isin string) (string, error) {
-	url := fmt.Sprintf("www.google.com/finance/quote/%s-%s", isin, s.currency)
+	url := fmt.Sprintf("https://www.google.com/finance/quote/%s-%s", isin, s.currency)
 	return url, nil
 }
 
