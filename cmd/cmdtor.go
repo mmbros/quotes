@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/mmbros/quotes/internal/quote"
+	"github.com/mmbros/quotes/internal/tor"
 )
 
 const usageTor = `Usage:
@@ -59,7 +60,7 @@ func execTor(flags *Flags, cfg *Config) error {
 
 	var proxyEnv string
 	if proxy == "" {
-		proxyEnv = quote.TorProxyFromEnvironment()
+		proxyEnv = tor.ProxyFromEnvironment()
 	} else {
 		proxyEnv = proxy
 	}
@@ -75,7 +76,7 @@ func execTor(flags *Flags, cfg *Config) error {
 	}
 	fmt.Println(".")
 
-	_, msg, err := quote.TorCheck(proxy)
+	_, msg, err := tor.Check(proxy)
 	if err == nil {
 		// ok checking Tor network:
 		// prints the result: it can be ok or ko

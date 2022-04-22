@@ -1,4 +1,4 @@
-package quote
+package tor
 
 import (
 	"fmt"
@@ -12,9 +12,9 @@ import (
 // URL to check for TOR network
 const torCheckURL = "https://check.torproject.org"
 
-// TorProxyFromEnvironment returns the proxy from environment
+// ProxyFromEnvironment returns the proxy from environment
 // used to get the url used to check the Tor network.
-func TorProxyFromEnvironment() string {
+func ProxyFromEnvironment() string {
 	if r, _ := http.NewRequest("GET", torCheckURL, nil); r != nil {
 		if u, _ := http.ProxyFromEnvironment(r); u != nil {
 			return u.String()
@@ -23,13 +23,13 @@ func TorProxyFromEnvironment() string {
 	return ""
 }
 
-// TorCheck checks if a Tor connection is used,
+// Check checks if a Tor connection is used,
 // retrieving the "https://check.torproject.org" page.
 // It returns:
 //  - bool:   true if Tor is used, false otherwise
 //  - string: the message contained in the html page
 //  - error:  if the message cannot be determined
-func TorCheck(proxy string) (bool, string, error) {
+func Check(proxy string) (bool, string, error) {
 
 	client, err := quotegetter.DefaultClient(proxy)
 	if err != nil {
