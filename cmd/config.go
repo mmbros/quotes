@@ -408,11 +408,11 @@ func (cfg *Config) checkAndSetMode() error {
 
 	switch strings.ToUpper(cfg.Mode) {
 	case "1", "FIRSTSUCCESSORLASTERROR":
-		m = taskengine.FirstSuccessOrLastError
+		m = taskengine.FirstSuccessOrLastResult
 	case "U", "UNTILFIRSTSUCCESS":
-		m = taskengine.UntilFirstSuccess
+		m = taskengine.ResultsUntilFirstSuccess
 	case "A", "ALL":
-		m = taskengine.All
+		m = taskengine.AllResults
 	default:
 		return fmt.Errorf("invalid mode %q", cfg.Mode)
 	}

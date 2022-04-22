@@ -52,9 +52,19 @@ type resultGetQuote struct {
 	Err       error      `json:"-"`
 }
 
-// Success method of the taskengine.Result interface
-func (r *resultGetQuote) Success() bool {
-	return r.Err == nil
+// String representation of the task.
+// Method of the taskengine.Result interface
+func (r *resultGetQuote) String() string {
+	if r.Err != nil {
+		return "n/a"
+	}
+	return fmt.Sprintf("%.2f %s", r.Price, r.Currency)
+}
+
+// The error returned by the Work function.
+// Method of the taskengine.Result interface
+func (r *resultGetQuote) Error() error {
+	return r.Err
 }
 
 func (r *resultGetQuote) dbInsert(db *quotegetterdb.QuoteDatabase) error {
@@ -188,7 +198,7 @@ func getResults(items []*SourceIsins, mode taskengine.Mode) ([]*resultGetQuote, 
 		qg := quoteGetter[item.Source]
 
 		// work function of the source
-		wfn := func(ctx context.Context, inst int, task taskengine.Task) taskengine.Result {
+		wfn := func(ctx context.Context, worker *taskengine.Worker, inst int, task taskengine.Task) taskengine.Result {
 			//  from taskengine.Task to taskGetQuote
 			t := task.(*taskGetQuote)
 
@@ -243,7 +253,11 @@ func getResults(items []*SourceIsins, mode taskengine.Mode) ([]*resultGetQuote, 
 
 	}
 
-	resChan, err := taskengine.Execute(context.Background(), ws, wts, mode)
+	eng, err := taskengine.NewEngine(ws, wts)
+	if err != nil {
+		return nil, err
+	}
+	resChan, err := eng.Execute(context.Background(), mode)
 	if err != nil {
 		return nil, err
 	}

@@ -36,7 +36,7 @@ func TestParseSearch(t *testing.T) {
 	}{
 		{"ok",
 			"BTC",
-			"www.google.com/finance/quote/BTC-EUR",
+			"https://www.google.com/finance/quote/BTC-EUR",
 			nil,
 		},
 	}

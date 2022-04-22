@@ -734,39 +734,39 @@ func TestMode(t *testing.T) {
 	}{
 		"args no mode": {
 			argtxt: "-i isin1",
-			want:   taskengine.FirstSuccessOrLastError,
+			want:   taskengine.FirstSuccessOrLastResult,
 		},
 		"args 1": {
 			argtxt: "-i isin1 -m 1",
-			want:   taskengine.FirstSuccessOrLastError,
+			want:   taskengine.FirstSuccessOrLastResult,
 		},
 		"args FirstSuccessOrLastError": {
 			argtxt: "-i isin1 -m FirstSuccessOrLastError",
-			want:   taskengine.FirstSuccessOrLastError,
+			want:   taskengine.FirstSuccessOrLastResult,
 		},
 		"args FirstSuccessThenCancel": {
 			argtxt: "-i isin1 -m UNTILFIRSTSUCCESS",
-			want:   taskengine.UntilFirstSuccess,
+			want:   taskengine.ResultsUntilFirstSuccess,
 		},
 		"args S": {
 			argtxt: "-i isin1 -m U",
-			want:   taskengine.UntilFirstSuccess,
+			want:   taskengine.ResultsUntilFirstSuccess,
 		},
 		"args s": {
 			argtxt: "-i isin1 -m u",
-			want:   taskengine.UntilFirstSuccess,
+			want:   taskengine.ResultsUntilFirstSuccess,
 		},
 		"args A": {
 			argtxt: "-i isin1 -m A",
-			want:   taskengine.All,
+			want:   taskengine.AllResults,
 		},
 		"args All": {
 			argtxt: "-i isin1 -m All",
-			want:   taskengine.All,
+			want:   taskengine.AllResults,
 		},
 		"args a": {
 			argtxt: "-i isin1 -m a",
-			want:   taskengine.All,
+			want:   taskengine.AllResults,
 		},
 		"args error": {
 			argtxt: "-i isin1 -m s1",
@@ -777,17 +777,17 @@ func TestMode(t *testing.T) {
 isins:
   isin1:
 `,
-			want: taskengine.All,
+			want: taskengine.AllResults,
 		},
 		"args no mode + cfg": {
 			argtxt: "-i isin1",
 			cfgtxt: `mode: A`,
-			want:   taskengine.All,
+			want:   taskengine.AllResults,
 		},
 		"args with mode + cfg": {
 			argtxt: "-i isin1 -m u",
 			cfgtxt: `mode: A`,
-			want:   taskengine.UntilFirstSuccess,
+			want:   taskengine.ResultsUntilFirstSuccess,
 		},
 	}
 	for title, c := range cases {
