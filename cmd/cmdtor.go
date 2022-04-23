@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/mmbros/quotes/internal/quote"
 	"github.com/mmbros/quotes/internal/tor"
 )
 
@@ -43,7 +42,7 @@ func parseExecTor(fullname string, arguments []string) error {
 	}
 
 	// get configuration
-	cfg, err = getConfig(flags, quote.Sources())
+	cfg, err = getConfig(flags, availableQuoteGetters.Names())
 	if err != nil {
 		return err
 	}
@@ -53,9 +52,10 @@ func parseExecTor(fullname string, arguments []string) error {
 
 func execTor(flags *Flags, cfg *Config) error {
 
-	if flags.IsPassed(namesConfig) {
-		fmt.Printf("Using configuration file %q\n", flags.config)
-	}
+	// if flags.IsPassed(namesConfig) {
+	// 	fmt.Printf("Using configuration file %q\n", flags.config)
+	// }
+	fmt.Println(cfg.cfi)
 	proxy := cfg.Proxy
 
 	var proxyEnv string

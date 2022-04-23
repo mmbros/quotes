@@ -223,7 +223,7 @@ func (cfg *Config) merge(args *Flags, allAvailableSources []string) error {
 	cfg.addAllSources(allAvailableSources, disabled)
 
 	// sets Isin.Sources to allAvailableSources for isins that have Isin.Sources undefined.
-	// If len(args.sources)>0 thi is not necessry, because it will be setted below.
+	// If len(args.sources)>0 this is not necessary, because it will be setted below.
 	if (args == nil) || (len(args.sources) == 0) {
 		for _, i := range cfg.Isins {
 			if len(i.Sources) == 0 {

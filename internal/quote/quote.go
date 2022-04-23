@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/mmbros/quotes/internal/quotegetter"
 	"github.com/mmbros/quotes/internal/quotegetter/scrapers"
 	"github.com/mmbros/quotes/internal/quotegetterdb"
+	"github.com/mmbros/quotes/internal/sources"
 	"github.com/mmbros/taskengine"
 )
 
@@ -127,7 +129,7 @@ func dbInsert(dbpath string, results []*resultGetQuote) error {
 }
 
 // checkListOfSourceIsins checks the validity of the given SourceIsins items
-func checkListOfSourceIsins(items []*SourceIsins) error {
+func checkListOfSourceIsins(availableSources *sources.QuoteGetterSources, items []*SourceIsins) error {
 	used := map[string]struct{}{}
 
 	for _, item := range items {
@@ -137,7 +139,7 @@ func checkListOfSourceIsins(items []*SourceIsins) error {
 		}
 		used[item.Source] = struct{}{}
 
-		if _, ok := availableSources[item.Source]; !ok {
+		if !availableSources.Exists(item.Source) {
 			return fmt.Errorf("source %q not available", item.Source)
 		}
 		if item.Workers <= 0 {
@@ -151,9 +153,9 @@ func checkListOfSourceIsins(items []*SourceIsins) error {
 // The mode parameters specified the taskengine mode of execution.
 // The results quotes are printed in json format.
 // The quotes are also saved to the database, if the dbpath is given.
-func Get(items []*SourceIsins, dbpath string, mode taskengine.Mode) error {
+func Get(availableSources *sources.QuoteGetterSources, items []*SourceIsins, dbpath string, mode taskengine.Mode) error {
 
-	results, err := getResults(items, mode)
+	results, err := getResults(availableSources, items, mode)
 	if err != nil {
 		return err
 	}
@@ -175,10 +177,12 @@ func Get(items []*SourceIsins, dbpath string, mode taskengine.Mode) error {
 }
 
 // getResults executes the tasks in order to retrieve the quotes.
-func getResults(items []*SourceIsins, mode taskengine.Mode) ([]*resultGetQuote, error) {
+func getResults(availableSources *sources.QuoteGetterSources,
+	items []*SourceIsins,
+	mode taskengine.Mode) ([]*resultGetQuote, error) {
 
 	// check input
-	if err := checkListOfSourceIsins(items); err != nil {
+	if err := checkListOfSourceIsins(availableSources, items); err != nil {
 		return nil, err
 	}
 
@@ -188,7 +192,7 @@ func getResults(items []*SourceIsins, mode taskengine.Mode) ([]*resultGetQuote, 
 	// WorkerTasks
 	wts := make(taskengine.WorkerTasks)
 
-	quoteGetter, err := initQuoteGetters(items)
+	quoteGetter, err := initQuoteGetters(availableSources, items)
 	if err != nil {
 		return nil, err
 	}
@@ -269,4 +273,31 @@ func getResults(items []*SourceIsins, mode taskengine.Mode) ([]*resultGetQuote, 
 	}
 
 	return results, nil
+}
+
+func initQuoteGetters(availableSources *sources.QuoteGetterSources, src []*SourceIsins) (map[string]quotegetter.QuoteGetter, error) {
+	quoteGetter := make(map[string]quotegetter.QuoteGetter)
+
+	proxyClient := map[string]*http.Client{}
+
+	for _, s := range src {
+		name := s.Source
+
+		client, ok := proxyClient[s.Proxy]
+		if !ok {
+			client, err := quotegetter.DefaultClient(s.Proxy)
+			if err != nil {
+				return nil, err
+			}
+			proxyClient[s.Proxy] = client
+		}
+
+		fn := availableSources.Get(name)
+		if fn == nil {
+			panic("invalid source: " + name)
+		}
+		quoteGetter[name] = fn(name, client)
+	}
+
+	return quoteGetter, nil
 }

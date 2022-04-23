@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/mmbros/quotes/internal/quotegetter"
+	"github.com/mmbros/quotes/internal/sources"
 	"github.com/mmbros/taskengine"
 	"github.com/stretchr/testify/assert"
 )
@@ -71,10 +72,9 @@ func (qg *dummyQuoteGetter) GetQuote(ctx context.Context, isin, url string) (*qu
 }
 
 func TestCheckListOfSourceIsins(t *testing.T) {
-	availableSources = map[string]quotegetter.NewQuoteGetterFunc{
-		"source1": newDummyQuoteGetter,
-		"source2": newDummyQuoteGetter,
-	}
+	availableSources := sources.NewQuoteGetterSources()
+	availableSources.Add("source1", newDummyQuoteGetter)
+	availableSources.Add("source2", newDummyQuoteGetter)
 
 	cases := []struct {
 		input  []*SourceIsins
@@ -138,7 +138,7 @@ func TestCheckListOfSourceIsins(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		err := checkListOfSourceIsins(c.input)
+		err := checkListOfSourceIsins(availableSources, c.input)
 		if c.errmsg == "" {
 			assert.NoError(t, err)
 		} else {
@@ -150,10 +150,10 @@ func TestCheckListOfSourceIsins(t *testing.T) {
 }
 
 func TestGetResults(t *testing.T) {
-	availableSources = map[string]quotegetter.NewQuoteGetterFunc{
-		"source1": newDummyQuoteGetter,
-		"source2": newDummyQuoteGetter,
-	}
+	availableSources := sources.NewQuoteGetterSources()
+	availableSources.Add("source1", newDummyQuoteGetter)
+	availableSources.Add("source2", newDummyQuoteGetter)
+
 	sis := []*SourceIsins{
 		{
 			Source:  "source1",
@@ -166,7 +166,7 @@ func TestGetResults(t *testing.T) {
 			Isins:   []string{"isin1", "isin2"},
 		},
 	}
-	res, err := getResults(sis, taskengine.AllResults)
+	res, err := getResults(availableSources, sis, taskengine.AllResults)
 	if assert.NoError(t, err) {
 		assert.Equal(t, 3, len(res))
 		// t.Fatalf("res %v", jsonString(res))
