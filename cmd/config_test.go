@@ -229,13 +229,13 @@ func initAppGetFlags(options string) (*Flags, error) {
 	return flags, err
 }
 
-func getCFI(flags *Flags) *configfile.Info {
+func getCFI(flags *Flags) *configfile.SourceInfo {
 	appname := flags.Appname()
 
 	// only for test pourpose, chheck configType
 	passed := flags.IsPassed(namesConfig) || (flags.configType != "")
 
-	cfi, _ := configfile.NewInfo(appname, "", flags.config, flags.configType, passed)
+	cfi, _ := configfile.NewSourceInfo(appname, "", flags.config, flags.configType, passed)
 	return cfi
 }
 

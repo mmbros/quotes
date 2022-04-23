@@ -1,8 +1,9 @@
+// Package configfile provides the configfile.SourceInfo struct
+// that gives the config file properties: path, format and source.
 package configfile
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -11,34 +12,34 @@ import (
 	"github.com/mmbros/quotes/internal/errors"
 )
 
-type EnumSource int
+type enumConfigSource int
 
-// Configuration file source enum
+// Configuration file source enum.
 // Note that command-line or environment source can set an empty config file.
 const (
-	srcNone EnumSource = iota
-	srcCommandLine
-	srcEnvironment
-	srcDefaults
+	configNone enumConfigSource = iota
+	configFromCommandLine
+	configFromEnvironment
+	configFromDefaults
 )
 
-// Info about the config file
-type Info struct {
-	path   string     // path of the config file
-	format string     // format of config file (json, yaml, toml)
-	Source EnumSource // source of the config file
+// SourceInfo representes the information about the config file.
+type SourceInfo struct {
+	path   string           // path of the config file
+	format string           // format of config file (json, yaml, toml)
+	source enumConfigSource // source of the config file
 }
 
-// Path returs the confg file epath
-func (i *Info) Path() string {
+// Path returns the confg file epath
+func (i *SourceInfo) Path() string {
 	return i.path
 }
 
-// Format returns the (lowercase) data format base the following criteria:
+// Format returns the (lowercase) config file format base the following criteria:
 // 1. the explicitly passed format, or
 // 2. the extension of the path without the leading "."
 // It returns "" in case of nil object.
-func (i *Info) Format() string {
+func (i *SourceInfo) Format() string {
 	var s string
 
 	if i == nil {
@@ -56,36 +57,40 @@ func (i *Info) Format() string {
 	return strings.ToLower(s)
 }
 
-func (n EnumSource) String() string {
+func (n enumConfigSource) String() string {
 	switch n {
-	case srcNone:
+	case configNone:
 		return "none"
-	case srcCommandLine:
+	case configFromCommandLine:
 		return "command-line"
-	case srcEnvironment:
+	case configFromEnvironment:
 		return "environment"
-	case srcDefaults:
+	case configFromDefaults:
 		return "default paths"
 	default:
 		return "unknown source"
 	}
 }
 
-// Fprintln prints the inforation about the config filee
-func (i *Info) Fprintln(w io.Writer) {
-	fmt.Fprint(w, "Configuration file: ")
-	if i == nil || i.Source == srcNone {
-		fmt.Fprintln(w, "not defined")
+// String returns a representation of the configfile.Info object
+func (i *SourceInfo) String() string {
+	var s string
+
+	if i == nil || i.source == configNone {
+		s = "not defined"
 	} else if i.path == "" {
-		fmt.Fprintf(w, "skipped by %s\n", i.Source)
+		s = fmt.Sprintf("skipped by %s", i.source)
 	} else if i.format != "" {
-		fmt.Fprintf(w, "using %q (type=%q) from %s\n", i.path, i.format, i.Source)
+		s = fmt.Sprintf("using %q (type=%q) from %s\n", i.path, i.format, i.source)
 	} else {
-		fmt.Fprintf(w, "using %q from %s\n", i.path, i.Source)
+		s = fmt.Sprintf("using %q from %s\n", i.path, i.source)
 	}
+	return "Configuration file: " + s
 }
 
-// sanitizeEnvKey ...
+// sanitizeEnvKey return the input string modified:
+// - UPPERCASE letters
+// - substitute every not digit or letter char with "_"
 func sanitizeEnvKey(key string) string {
 	mapping := func(r rune) rune {
 		switch {
@@ -101,12 +106,12 @@ func sanitizeEnvKey(key string) string {
 	return strings.Map(mapping, key)
 }
 
-func newInfoFromCommandLine(path, format string) (*Info, error) {
+func newInfoFromCommandLine(path, format string) (*SourceInfo, error) {
 	var err error
-	info := &Info{
+	info := &SourceInfo{
 		path:   path,
 		format: format,
-		Source: srcCommandLine,
+		source: configFromCommandLine,
 	}
 	if path != "" {
 		// if it is not blank, check if exists
@@ -125,7 +130,7 @@ func newInfoFromCommandLine(path, format string) (*Info, error) {
 
 // newInfoFromEnv returns the configfile.Info using the environment parameters.
 // Returns nil, if the config environment variable is not defined.
-func newInfoFromEnv(appname, keyPrefix string) (*Info, error) {
+func newInfoFromEnv(appname, keyPrefix string) (*SourceInfo, error) {
 
 	if keyPrefix == "" {
 		keyPrefix = appname
@@ -140,10 +145,10 @@ func newInfoFromEnv(appname, keyPrefix string) (*Info, error) {
 
 	var err error
 	keyConfigTypeName := sanitizeEnvKey(keyPrefix + "_CONFIG_TYPE")
-	info := &Info{
+	info := &SourceInfo{
 		path:   keyConfigValue,
 		format: os.Getenv(keyConfigTypeName),
-		Source: srcEnvironment,
+		source: configFromEnvironment,
 	}
 
 	if info.path != "" {
@@ -171,7 +176,7 @@ func userHomeDir() string {
 	return os.Getenv("HOME")
 }
 
-func newInfoFromDefaults(appname, home string) (*Info, error) {
+func newInfoFromDefaults(appname, home string) (*SourceInfo, error) {
 
 	astr := []string{
 		filepath.Join(home, "."+appname+"."),
@@ -185,20 +190,20 @@ func newInfoFromDefaults(appname, home string) (*Info, error) {
 
 			_, err := os.Stat(path)
 			if err == nil {
-				info := &Info{
+				info := &SourceInfo{
 					path:   path,
 					format: ext,
-					Source: srcDefaults,
+					source: configFromDefaults,
 				}
 				return info, nil
 			}
 		}
 	}
 
-	return &Info{Source: srcNone}, nil
+	return &SourceInfo{source: configNone}, nil
 }
 
-// NewInfo init the config file information struct from (in order):
+// NewSourceInfo init the config file information struct from (in order):
 // 1. command line
 // 2. environment variables
 // 3. defaults
@@ -207,9 +212,9 @@ func newInfoFromDefaults(appname, home string) (*Info, error) {
 //   appname:   name of the app
 //   keyPrefix: prefix of the environment variables. If empty, apname will be used
 //   path:      path of the config file passed as command line argument. It can be empty
-//   format:    format of the config file passed as command line argument
+//   format:    format of the config file passed as command line argument. It can be empty
 //   passed:    true if path is passed as command line argument
-func NewInfo(appname, keyPrefix, path, format string, passed bool) (*Info, error) {
+func NewSourceInfo(appname, keyPrefix, path, format string, passed bool) (*SourceInfo, error) {
 
 	// 1. checks command-line config file, if passed
 	if passed {

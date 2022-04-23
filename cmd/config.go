@@ -49,7 +49,7 @@ type Config struct {
 	Mode     string                 `json:"mode,omitempty"`
 
 	taskengMode taskengine.Mode
-	cfi         *configfile.Info
+	cfi         *configfile.SourceInfo
 }
 
 // String returns a json string representation of the object.
@@ -500,7 +500,7 @@ func (cfg *Config) SourceIsinsList() []*quote.SourceIsins {
 	return sis
 }
 
-func NewConfig(cfi *configfile.Info, flags *Flags, allSources []string) (*Config, error) {
+func NewConfig(cfi *configfile.SourceInfo, flags *Flags, allSources []string) (*Config, error) {
 	var err error
 	var data []byte
 
@@ -516,7 +516,7 @@ func NewConfig(cfi *configfile.Info, flags *Flags, allSources []string) (*Config
 }
 
 // cfi can be nil for test pourpose
-func auxNewConfig(data []byte, cfi *configfile.Info, flags *Flags, allSources []string) (*Config, error) {
+func auxNewConfig(data []byte, cfi *configfile.SourceInfo, flags *Flags, allSources []string) (*Config, error) {
 	var err error
 	cfg := &Config{cfi: cfi}
 
@@ -550,7 +550,7 @@ func auxNewConfig(data []byte, cfi *configfile.Info, flags *Flags, allSources []
 func getConfig(flags *Flags, allSources []string) (*Config, error) {
 
 	appname := flags.Appname()
-	cfi, err := configfile.NewInfo(appname, "", flags.config, flags.configType, flags.IsPassed(namesConfig))
+	cfi, err := configfile.NewSourceInfo(appname, "", flags.config, flags.configType, flags.IsPassed(namesConfig))
 	if err != nil {
 		return nil, err
 	}

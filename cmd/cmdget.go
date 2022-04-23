@@ -79,7 +79,7 @@ func printDryRunInfo(w io.Writer, flags *Flags, cfg *Config) error {
 	fmt.Fprintf(w, "%s: Dry Run\n", flags.fullname)
 
 	// prints config file info
-	cfg.cfi.Fprintln(w)
+	fmt.Fprintln(w, cfg.cfi)
 
 	if cfg.Database != "" {
 		fmt.Fprintf(w, "Database: %q\n", cfg.Database)

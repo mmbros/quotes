@@ -35,7 +35,7 @@ func Test_Path(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		i := &Info{c.path, "", srcCommandLine}
+		i := &SourceInfo{c.path, "", configFromCommandLine}
 		got := i.Path()
 		want := c.path
 		assert.Equal(t, want, got, c)
@@ -55,12 +55,12 @@ func Test_Format(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		i := &Info{c.path, c.format, srcCommandLine}
+		i := &SourceInfo{c.path, c.format, configFromCommandLine}
 		got := i.Format()
 		assert.Equal(t, c.want, got, c)
 	}
 
-	var nilInfo *Info
+	var nilInfo *SourceInfo
 	got := nilInfo.Format()
 	assert.Equal(t, "", got, "nil Info")
 }
@@ -73,31 +73,31 @@ func Test_newInfoFromCommandLine(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    *Info
+		want    *SourceInfo
 		wantErr bool
 	}{
 		{
 			"blank path and format",
 			args{"", ""},
-			&Info{"", "", srcCommandLine},
+			&SourceInfo{"", "", configFromCommandLine},
 			false,
 		},
 		{
 			"blank path",
 			args{"", "format"},
-			&Info{"", "format", srcCommandLine},
+			&SourceInfo{"", "format", configFromCommandLine},
 			false,
 		},
 		{
 			"path exists",
 			args{"/dev/null", "json"},
-			&Info{"/dev/null", "json", srcCommandLine},
+			&SourceInfo{"/dev/null", "json", configFromCommandLine},
 			false,
 		},
 		{
 			"path not exist",
 			args{"/dev/null$@#", "toml"},
-			&Info{"/dev/null$@#", "toml", srcCommandLine},
+			&SourceInfo{"/dev/null$@#", "toml", configFromCommandLine},
 			true,
 		},
 	}
@@ -130,7 +130,7 @@ func Test_newInfoFromEnv(t *testing.T) {
 		valConfigType string
 		defConfigType bool
 
-		want    *Info
+		want    *SourceInfo
 		wantErr bool
 	}{
 		{
@@ -148,19 +148,19 @@ func Test_newInfoFromEnv(t *testing.T) {
 		{
 			"config defined",
 			"/dev/null", true, "", false,
-			&Info{"/dev/null", "", srcEnvironment},
+			&SourceInfo{"/dev/null", "", configFromEnvironment},
 			false,
 		},
 		{
 			"blank config and config-type defined",
 			"", true, "yml", true,
-			&Info{"", "yml", srcEnvironment},
+			&SourceInfo{"", "yml", configFromEnvironment},
 			false,
 		},
 		{
 			"config defined but non exists",
 			"/dev/null#$%", true, "toml", true,
-			&Info{"/dev/null#$%", "toml", srcEnvironment},
+			&SourceInfo{"/dev/null#$%", "toml", configFromEnvironment},
 			true,
 		},
 	}
@@ -232,31 +232,31 @@ func Test_newInfoFromDefaults(t *testing.T) {
 	tests := []struct {
 		name    string
 		path    string
-		want    *Info
+		want    *SourceInfo
 		wantErr bool
 	}{
 		{
 			"no config",
 			"",
-			&Info{"", "", srcNone},
+			&SourceInfo{"", "", configNone},
 			false,
 		},
 		{
 			".appname.json",
 			filepath.Join(home, "."+appname+".json"),
-			&Info{filepath.Join(home, "."+appname+".json"), "json", srcDefaults},
+			&SourceInfo{filepath.Join(home, "."+appname+".json"), "json", configFromDefaults},
 			false,
 		},
 		{
 			".appname/config.yaml",
 			filepath.Join(home, "."+appname, "config.yaml"),
-			&Info{filepath.Join(home, "."+appname, "config.yaml"), "yaml", srcDefaults},
+			&SourceInfo{filepath.Join(home, "."+appname, "config.yaml"), "yaml", configFromDefaults},
 			false,
 		},
 		{
 			".appname/appname.toml",
 			filepath.Join(home, "."+appname, appname+".toml"),
-			&Info{filepath.Join(home, "."+appname, appname+".toml"), "toml", srcDefaults},
+			&SourceInfo{filepath.Join(home, "."+appname, appname+".toml"), "toml", configFromDefaults},
 			false,
 		},
 	}
@@ -312,7 +312,7 @@ func TestNewInfo(t *testing.T) {
 		envSetted bool
 		defPath   string
 
-		want    *Info
+		want    *SourceInfo
 		wantErr bool
 	}{
 		{
@@ -320,7 +320,7 @@ func TestNewInfo(t *testing.T) {
 			args{pathCmdline, "json", true},
 			pathEnv, true,
 			"",
-			&Info{pathCmdline, "json", srcCommandLine},
+			&SourceInfo{pathCmdline, "json", configFromCommandLine},
 			true,
 		},
 		{
@@ -328,7 +328,7 @@ func TestNewInfo(t *testing.T) {
 			args{"", "toml", true},
 			pathEnv, true,
 			"",
-			&Info{"", "toml", srcCommandLine},
+			&SourceInfo{"", "toml", configFromCommandLine},
 			false,
 		},
 		{
@@ -336,7 +336,7 @@ func TestNewInfo(t *testing.T) {
 			args{},
 			pathEnv, true,
 			"",
-			&Info{pathEnv, "", srcEnvironment},
+			&SourceInfo{pathEnv, "", configFromEnvironment},
 			true,
 		},
 		{
@@ -344,7 +344,7 @@ func TestNewInfo(t *testing.T) {
 			args{},
 			"", true,
 			"",
-			&Info{"", "", srcEnvironment},
+			&SourceInfo{"", "", configFromEnvironment},
 			false,
 		},
 		{
@@ -352,7 +352,7 @@ func TestNewInfo(t *testing.T) {
 			args{},
 			"", false,
 			pathDefault,
-			&Info{"", "", srcNone},
+			&SourceInfo{"", "", configNone},
 			false,
 		},
 	}
@@ -378,7 +378,7 @@ func TestNewInfo(t *testing.T) {
 				os.Setenv(keyConfig, tt.envValue)
 			}
 
-			got, err := NewInfo(appname, "app", tt.args.path, tt.args.format, tt.args.passed)
+			got, err := NewSourceInfo(appname, "app", tt.args.path, tt.args.format, tt.args.passed)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewInfo() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -390,38 +390,34 @@ func TestNewInfo(t *testing.T) {
 	}
 }
 
-func Test_Fprintln(t *testing.T) {
+func Test_String(t *testing.T) {
 	tests := map[string]struct {
-		info *Info
+		info *SourceInfo
 		want string
 	}{
 		"nil":  {nil, "not defined"},
-		"zero": {&Info{}, "not defined"},
+		"zero": {&SourceInfo{}, "not defined"},
 
-		"none empty":     {&Info{"", "", srcNone}, "not defined"},
-		"none type only": {&Info{"", "toml", srcNone}, "not defined"},
+		"none empty":     {&SourceInfo{"", "", configNone}, "not defined"},
+		"none type only": {&SourceInfo{"", "toml", configNone}, "not defined"},
 
-		"cmdline empty":       {&Info{"", "", srcCommandLine}, "skipped by command"},
-		"cmdline type only":   {&Info{"", "json", srcCommandLine}, "skipped by command"},
-		"cmdline path":        {&Info{"path/to/file.toml", "", srcCommandLine}, `"path/to/file.toml" from command-line`},
-		"cmdline path & type": {&Info{"path/to/file.toml", "yaml", srcCommandLine}, `"path/to/file.toml" (type="yaml") from command-line`},
+		"cmdline empty":       {&SourceInfo{"", "", configFromCommandLine}, "skipped by command"},
+		"cmdline type only":   {&SourceInfo{"", "json", configFromCommandLine}, "skipped by command"},
+		"cmdline path":        {&SourceInfo{"path/to/file.toml", "", configFromCommandLine}, `"path/to/file.toml" from command-line`},
+		"cmdline path & type": {&SourceInfo{"path/to/file.toml", "yaml", configFromCommandLine}, `"path/to/file.toml" (type="yaml") from command-line`},
 
-		"env empty":       {&Info{"", "", srcEnvironment}, "skipped by environment"},
-		"env type only":   {&Info{"", "json", srcEnvironment}, "skipped by environment"},
-		"env path":        {&Info{"path/to/file.ext", "", srcEnvironment}, `"path/to/file.ext" from environment`},
-		"env path & type": {&Info{"path/to/file.ext", "toml", srcEnvironment}, `"path/to/file.ext" (type="toml") from environment`},
+		"env empty":       {&SourceInfo{"", "", configFromEnvironment}, "skipped by environment"},
+		"env type only":   {&SourceInfo{"", "json", configFromEnvironment}, "skipped by environment"},
+		"env path":        {&SourceInfo{"path/to/file.ext", "", configFromEnvironment}, `"path/to/file.ext" from environment`},
+		"env path & type": {&SourceInfo{"path/to/file.ext", "toml", configFromEnvironment}, `"path/to/file.ext" (type="toml") from environment`},
 
-		"defaults path": {&Info{"path/to/file.ext", "", srcDefaults}, `"path/to/file.ext" from def`},
+		"defaults path": {&SourceInfo{"path/to/file.ext", "", configFromDefaults}, `"path/to/file.ext" from def`},
 	}
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
 
-			var wout strings.Builder
-
-			tt.info.Fprintln(&wout)
-
-			got := wout.String()
+			got := tt.info.String()
 			if !strings.Contains(got, tt.want) {
 				t.Errorf("Fprintln() = %q does not contain %q", got, tt.want)
 			}
