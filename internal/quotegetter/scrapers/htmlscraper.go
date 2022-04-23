@@ -55,8 +55,15 @@ func NewQuoteGetter(scr Scraper) quotegetter.QuoteGetter {
 // }
 
 // GetQuote implements the method of the QuoteGetter interface
-func (qg *quoteGetter) GetQuote(ctx context.Context, isin, url string) (*quotegetter.Result, error) {
-	return getQuote(ctx, isin, url, qg)
+func (qg *quoteGetter) GetQuote(ctx context.Context, isin, url string) *quotegetter.Result {
+	res, err := getQuote(ctx, isin, url, qg)
+	if res == nil {
+		res = &quotegetter.Result{}
+	}
+	if err != nil {
+		res.Err = err
+	}
+	return res
 }
 
 // getInfoFromDoc parse the info page and returns the result
@@ -107,8 +114,6 @@ func getInfoFromDoc(docInfo *goquery.Document, isin, url string, scr Scraper) (*
 	}
 
 	r := &quotegetter.Result{
-		Source:   scr.Source(),
-		Isin:     isin,
 		URL:      url,
 		Price:    vPrice,
 		Date:     vDate,

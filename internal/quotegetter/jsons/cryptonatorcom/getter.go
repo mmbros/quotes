@@ -52,7 +52,7 @@ func (g *getter) Client() *http.Client {
 }
 
 // GetQuote ....
-func (g *getter) GetQuote(ctx context.Context, crypto, url string) (*quotegetter.Result, error) {
+func (g *getter) GetQuote(ctx context.Context, crypto, url string) *quotegetter.Result {
 	var (
 		res  *http.Response
 		body []byte
@@ -88,12 +88,15 @@ func (g *getter) GetQuote(ctx context.Context, crypto, url string) (*quotegetter
 	// success
 	if err == nil {
 		r.URL = url
-		return r, nil
+		return r
 	}
 
 	// error
-	e := quotegetter.NewError(g.Source(), crypto, url, err)
-	return nil, e
+	r = &quotegetter.Result{
+		URL: url,
+		Err: err,
+	}
+	return r
 }
 
 func (g *getter) parseJSON(body []byte) (*quotegetter.Result, error) {
@@ -112,11 +115,11 @@ func (g *getter) parseJSON(body []byte) (*quotegetter.Result, error) {
 		}
 
 		r := &quotegetter.Result{
-			Isin:     res.Ticker.Base,
+			// Isin:     res.Ticker.Base,
 			Currency: res.Ticker.Target,
-			Source:   g.Source(),
-			Date:     time.Unix(res.Timestamp, 0),
-			Price:    float32(price64),
+			// Source:   g.Source(),
+			Date:  time.Unix(res.Timestamp, 0),
+			Price: float32(price64),
 		}
 		return r, nil
 	}

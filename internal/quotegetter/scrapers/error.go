@@ -3,8 +3,16 @@ package scrapers
 import (
 	"errors"
 	"fmt"
+)
 
-	"github.com/mmbros/quotes/internal/quotegetter"
+// Errors
+var (
+	ErrNoResultFound    = errors.New("no result found")
+	ErrIsinMismatch     = errors.New("isin mismatch")
+	ErrEmptyInfoURL     = errors.New("parse search returned an empty info URL")
+	ErrInfoRequestIsNil = errors.New("info request is nil")
+	ErrPriceNotFound    = errors.New("price not found")
+	ErrDateNotFound     = errors.New("date not found")
 )
 
 // ErrorType is ...
@@ -38,7 +46,7 @@ const (
 // 	Err  error
 // }
 
-type quotegetterError quotegetter.Error
+// type quotegetterError quotegetter.Error
 
 // Error is
 type Error struct {
@@ -80,13 +88,3 @@ func (e *Error) Error() string {
 	}
 
 }
-
-// Errors
-var (
-	ErrNoResultFound    = errors.New("no result found")
-	ErrIsinMismatch     = errors.New("isin mismatch")
-	ErrEmptyInfoURL     = errors.New("parse search returned an empty info URL")
-	ErrInfoRequestIsNil = errors.New("info request is nil")
-	ErrPriceNotFound    = errors.New("price not found")
-	ErrDateNotFound     = errors.New("date not found")
-)

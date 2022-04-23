@@ -2,15 +2,11 @@ package quote
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/mmbros/quotes/internal/quotegetter"
-	"github.com/mmbros/quotes/internal/quotegetter/scrapers"
-	"github.com/mmbros/quotes/internal/quotegetterdb"
 	"github.com/mmbros/taskengine"
 )
 
@@ -34,12 +30,11 @@ func (t *taskGetQuote) TaskID() taskengine.TaskID {
 	return taskengine.TaskID(t.isin)
 }
 
-// resultGetQuote contains the result informations of the retrieved quote.
-// It implements the taskengine.Result interface.
+// Result contains the result informations of the retrieved quote.
 //
-// resultGetQuote.Date field is a pointer in order to omit zero dates.
+// Result.Date field is a pointer in order to omit zero dates.
 // see https://stackoverflow.com/questions/32643815/json-omitempty-with-time-time-field
-type resultGetQuote struct {
+type Result struct {
 	Isin      string     `json:"isin,omitempty"`
 	Source    string     `json:"source,omitempty"`
 	Instance  int        `json:"instance"`
@@ -53,79 +48,79 @@ type resultGetQuote struct {
 	Err       error      `json:"-"`
 }
 
-// String representation of the task.
-// Method of the taskengine.Result interface
-func (r *resultGetQuote) String() string {
-	if r.Err != nil {
-		return "n/a"
-	}
-	return fmt.Sprintf("%.2f %s", r.Price, r.Currency)
-}
+// // String representation of the task.
+// // Method of the taskengine.Result interface
+// func (r *resultGetQuote) String() string {
+// 	if r.Err != nil {
+// 		return "n/a"
+// 	}
+// 	return fmt.Sprintf("%.2f %s", r.Price, r.Currency)
+// }
 
-// The error returned by the Work function.
-// Method of the taskengine.Result interface
-func (r *resultGetQuote) Error() error {
-	return r.Err
-}
+// // The error returned by the Work function.
+// // Method of the taskengine.Result interface
+// func (r *resultGetQuote) Error() error {
+// 	return r.Err
+// }
 
-func (r *resultGetQuote) dbInsert(db *quotegetterdb.QuoteDatabase) error {
-	var qr *quotegetterdb.QuoteRecord
+// func (r *resultGetQuote) dbInsert(db *quotegetterdb.QuoteDatabase) error {
+// 	var qr *quotegetterdb.QuoteRecord
 
-	// assert := func(b bool, label string) {
-	// 	if !b {
-	// 		panic("failed assert: " + label)
-	// 	}
-	// }
+// 	// assert := func(b bool, label string) {
+// 	// 	if !b {
+// 	// 		panic("failed assert: " + label)
+// 	// 	}
+// 	// }
 
-	// assert(r != nil, "r != nil")
-	// assert(db != nil, "db != nil")
+// 	// assert(r != nil, "r != nil")
+// 	// assert(db != nil, "db != nil")
 
-	// skip context.Canceled errors
-	if r.Err != nil {
-		if err, ok := r.Err.(*scrapers.Error); ok {
-			if !errors.Is(err, context.Canceled) {
-				return nil
-			}
-		}
-	}
-	qr = &quotegetterdb.QuoteRecord{
-		Isin:     r.Isin,
-		Source:   r.Source,
-		Price:    r.Price,
-		Currency: r.Currency,
-		URL:      r.URL,
-		ErrMsg:   r.ErrMsg,
-	}
-	if r.Date != nil {
-		qr.Date = *r.Date
-	}
-	// isin and source are mandatory
-	// assert(len(qr.Isin) > 0, "len(qr.Isin) > 0")
-	// assert(len(qr.Source) > 0, "len(qr.Source) > 0")
+// 	// skip context.Canceled errors
+// 	if r.Err != nil {
+// 		if err, ok := r.Err.(*scrapers.Error); ok {
+// 			if !errors.Is(err, context.Canceled) {
+// 				return nil
+// 			}
+// 		}
+// 	}
+// 	qr = &quotegetterdb.QuoteRecord{
+// 		Isin:     r.Isin,
+// 		Source:   r.Source,
+// 		Price:    r.Price,
+// 		Currency: r.Currency,
+// 		URL:      r.URL,
+// 		ErrMsg:   r.ErrMsg,
+// 	}
+// 	if r.Date != nil {
+// 		qr.Date = *r.Date
+// 	}
+// 	// isin and source are mandatory
+// 	// assert(len(qr.Isin) > 0, "len(qr.Isin) > 0")
+// 	// assert(len(qr.Source) > 0, "len(qr.Source) > 0")
 
-	// save to database
-	return db.InsertQuotes(qr)
-}
+// 	// save to database
+// 	return db.InsertQuotes(qr)
+// }
 
-func dbInsert(dbpath string, results []*resultGetQuote) error {
-	if len(dbpath) == 0 {
-		return nil
-	}
+// func dbInsert(dbpath string, results []*resultGetQuote) error {
+// 	if len(dbpath) == 0 {
+// 		return nil
+// 	}
 
-	// save to database
-	db, err := quotegetterdb.Open(dbpath)
-	if db != nil {
-		defer db.Close()
+// 	// save to database
+// 	db, err := quotegetterdb.Open(dbpath)
+// 	if db != nil {
+// 		defer db.Close()
 
-		for _, r := range results {
-			err = r.dbInsert(db)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
+// 		for _, r := range results {
+// 			err = r.dbInsert(db)
+// 			if err != nil {
+// 				return err
+// 			}
+// 		}
+// 	}
+// 	return nil
+// }
 
 // checkListOfSourceIsins checks the validity of the given SourceIsins items
 func checkListOfSourceIsins(availableSources quotegetter.Sources, items []*SourceIsins) error {
@@ -152,127 +147,177 @@ func checkListOfSourceIsins(availableSources quotegetter.Sources, items []*Sourc
 // The mode parameters specified the taskengine mode of execution.
 // The results quotes are printed in json format.
 // The quotes are also saved to the database, if the dbpath is given.
-func Get(availableSources quotegetter.Sources, items []*SourceIsins, dbpath string, mode taskengine.Mode) error {
+func Get(availableSources quotegetter.Sources, items []*SourceIsins, dbpath string, mode taskengine.Mode) ([]*Result, error) {
 
-	results, err := getResults(availableSources, items, mode)
-	if err != nil {
-		return err
+	type addResultFunc func(*taskengine.Event) bool
+
+	var addResult addResultFunc
+	switch mode {
+	case taskengine.FirstSuccessOrLastResult:
+		addResult = func(e *taskengine.Event) bool { return e.IsFirstSuccessOrLastResult() }
+	case taskengine.ResultsUntilFirstSuccess:
+		addResult = func(e *taskengine.Event) bool { return e.IsResultUntilFirstSuccess() }
+	case taskengine.SuccessOrErrorResults:
+		addResult = func(e *taskengine.Event) bool { return e.IsSuccessOrError() }
+	case taskengine.AllResults:
+		addResult = func(e *taskengine.Event) bool { return e.IsResult() }
 	}
 
-	// save to database, if not empty
-	err = dbInsert(dbpath, results)
-	if err != nil {
-		fmt.Println(err)
-	}
+	results := []*Result{}
+	// var wProgress io.Writer
 
-	json, err := json.MarshalIndent(results, "", " ")
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(string(json))
-
-	return nil
-}
-
-// getResults executes the tasks in order to retrieve the quotes.
-func getResults(availableSources quotegetter.Sources,
-	items []*SourceIsins,
-	mode taskengine.Mode) ([]*resultGetQuote, error) {
-
-	// check input
-	if err := checkListOfSourceIsins(availableSources, items); err != nil {
-		return nil, err
-	}
-
-	// Workers
-	ws := make([]*taskengine.Worker, 0, len(items))
-
-	// WorkerTasks
-	wts := make(taskengine.WorkerTasks)
-
-	quoteGetter, err := initQuoteGetters(availableSources, items)
+	eventc, err := getEventsChan(availableSources, items)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, item := range items {
+	for event := range eventc {
 
-		qg := quoteGetter[item.Source]
+		if addResult(event) {
 
-		// work function of the source
-		wfn := func(ctx context.Context, worker *taskengine.Worker, inst int, task taskengine.Task) taskengine.Result {
-			//  from taskengine.Task to taskGetQuote
-			t := task.(*taskGetQuote)
-
-			time1 := time.Now()
-			res, err := qg.GetQuote(ctx, t.isin, t.url)
-			time2 := time.Now()
-
-			r := &resultGetQuote{
-				Instance:  inst,
-				TimeStart: time1,
-				TimeEnd:   time2,
-				Err:       err,
+			result := &Result{
+				Isin:      string(event.Task.TaskID()),
+				Source:    string(event.WorkerID),
+				Instance:  event.WorkerInst,
+				TimeStart: event.TimeStart,
+				TimeEnd:   event.TimeEnd,
 			}
-			if res != nil {
-				r.Isin = res.Isin
-				r.Source = res.Source
-				r.Price = res.Price
-				r.Currency = res.Currency
-				r.URL = res.URL
-				if !res.Date.IsZero() {
-					r.Date = &res.Date
-				}
+
+			if event.Type() == taskengine.EventSuccess {
+				qgResult := event.Result.(*quotegetter.Result)
+
+				result.Price = qgResult.Price
+				result.Currency = qgResult.Currency
+				result.URL = qgResult.URL
+				result.Date = &qgResult.Date
+				// progr.SetSuccess(tid, string(event.WorkerID), result.price, result.currency)
+				// rs.TaskSuccess++
+			} else {
+				// progr.SetError(tid)
+				// rs.TaskError++
+				result.Err = event.Result.Error()
+				result.ErrMsg = result.Err.Error()
 			}
-			if err != nil {
-				r.ErrMsg = err.Error()
-				if e, ok := err.(quotegetter.Error); ok {
-					r.Isin = e.Isin()
-					r.Source = e.Source()
-					r.URL = e.URL()
-				}
-			}
-			return r
+
+			results = append(results, result)
 		}
 
-		// worker
-		w := &taskengine.Worker{
-			WorkerID:  taskengine.WorkerID(item.Source),
-			Instances: item.Workers,
-			Work:      wfn,
-		}
-		ws = append(ws, w)
-
-		// Tasks
-		ts := make(taskengine.Tasks, 0, len(item.Isins))
-		for _, isin := range item.Isins {
-			ts = append(ts, &taskGetQuote{
-				isin: isin,
-				url:  "",
-			})
-		}
-		wts[w.WorkerID] = ts
-
 	}
 
-	eng, err := taskengine.NewEngine(ws, wts)
-	if err != nil {
-		return nil, err
-	}
-	resChan, err := eng.Execute(context.Background(), mode)
-	if err != nil {
-		return nil, err
-	}
+	// // save to database, if not empty
+	// err = dbInsert(dbpath, results)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
 
-	results := []*resultGetQuote{}
-	for r := range resChan {
-		res := r.(*resultGetQuote)
-		results = append(results, res)
-	}
+	// json, err := json.MarshalIndent(results, "", " ")
+	// if err != nil {
+	// 	return err
+	// }
+
+	// fmt.Println(string(json))
 
 	return results, nil
 }
+
+// // getResults executes the tasks in order to retrieve the quotes.
+// func getResults(availableSources quotegetter.Sources,
+// 	items []*SourceIsins,
+// 	mode taskengine.Mode) ([]*resultGetQuote, error) {
+
+// 	// check input
+// 	if err := checkListOfSourceIsins(availableSources, items); err != nil {
+// 		return nil, err
+// 	}
+
+// 	// Workers
+// 	ws := make([]*taskengine.Worker, 0, len(items))
+
+// 	// WorkerTasks
+// 	wts := make(taskengine.WorkerTasks)
+
+// 	quoteGetter, err := initQuoteGetters(availableSources, items)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	for _, item := range items {
+
+// 		qg := quoteGetter[item.Source]
+
+// 		// work function of the source
+// 		wfn := func(ctx context.Context, worker *taskengine.Worker, inst int, task taskengine.Task) taskengine.Result {
+// 			//  from taskengine.Task to taskGetQuote
+// 			t := task.(*taskGetQuote)
+
+// 			time1 := time.Now()
+// 			res, err := qg.GetQuote(ctx, t.isin, t.url)
+// 			time2 := time.Now()
+
+// 			r := &resultGetQuote{
+// 				Instance:  inst,
+// 				TimeStart: time1,
+// 				TimeEnd:   time2,
+// 				Err:       err,
+// 			}
+// 			if res != nil {
+// 				r.Isin = res.Isin
+// 				r.Source = res.Source
+// 				r.Price = res.Price
+// 				r.Currency = res.Currency
+// 				r.URL = res.URL
+// 				if !res.Date.IsZero() {
+// 					r.Date = &res.Date
+// 				}
+// 			}
+// 			if err != nil {
+// 				r.ErrMsg = err.Error()
+// 				if e, ok := err.(quotegetter.Error); ok {
+// 					r.Isin = e.Isin()
+// 					r.Source = e.Source()
+// 					r.URL = e.URL()
+// 				}
+// 			}
+// 			return r
+// 		}
+
+// 		// worker
+// 		w := &taskengine.Worker{
+// 			WorkerID:  taskengine.WorkerID(item.Source),
+// 			Instances: item.Workers,
+// 			Work:      wfn,
+// 		}
+// 		ws = append(ws, w)
+
+// 		// Tasks
+// 		ts := make(taskengine.Tasks, 0, len(item.Isins))
+// 		for _, isin := range item.Isins {
+// 			ts = append(ts, &taskGetQuote{
+// 				isin: isin,
+// 				url:  "",
+// 			})
+// 		}
+// 		wts[w.WorkerID] = ts
+
+// 	}
+
+// 	eng, err := taskengine.NewEngine(ws, wts)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	resChan, err := eng.Execute(context.Background(), mode)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	results := []*resultGetQuote{}
+// 	for r := range resChan {
+// 		res := r.(*resultGetQuote)
+// 		results = append(results, res)
+// 	}
+
+// 	return results, nil
+// }
 
 func initQuoteGetters(availableSources quotegetter.Sources, src []*SourceIsins) (map[string]quotegetter.QuoteGetter, error) {
 	quoteGetter := make(map[string]quotegetter.QuoteGetter)
@@ -299,4 +344,75 @@ func initQuoteGetters(availableSources quotegetter.Sources, src []*SourceIsins) 
 	}
 
 	return quoteGetter, nil
+}
+
+// func (scnr *Scenario) ExecuteEvents() (chan *taskengine.Event, error) {
+
+// 	if scnr.ws == nil {
+// 		return nil, errors.New("must run RandomWorkersAndTasks before")
+// 	}
+
+// 	ctx := context.Background()
+// 	eng, err := taskengine.NewEngine(scnr.ws, scnr.wts)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return eng.ExecuteEvents(ctx)
+// }
+
+// getEventsChan ...
+func getEventsChan(availableSources quotegetter.Sources, items []*SourceIsins) (chan *taskengine.Event, error) {
+
+	// check input
+	if err := checkListOfSourceIsins(availableSources, items); err != nil {
+		return nil, err
+	}
+
+	// Workers
+	ws := make([]*taskengine.Worker, 0, len(items))
+
+	// WorkerTasks
+	wts := make(taskengine.WorkerTasks)
+
+	quoteGetter, err := initQuoteGetters(availableSources, items)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range items {
+
+		qg := quoteGetter[item.Source]
+
+		// work function of the source
+		wfn := func(ctx context.Context, worker *taskengine.Worker, inst int, task taskengine.Task) taskengine.Result {
+			//  from taskengine.Task to taskGetQuote
+			t := task.(*taskGetQuote)
+			return qg.GetQuote(ctx, t.isin, t.url)
+		}
+
+		// worker
+		w := &taskengine.Worker{
+			WorkerID:  taskengine.WorkerID(item.Source),
+			Instances: item.Workers,
+			Work:      wfn,
+		}
+		ws = append(ws, w)
+
+		// Tasks
+		ts := make(taskengine.Tasks, 0, len(item.Isins))
+		for _, isin := range item.Isins {
+			ts = append(ts, &taskGetQuote{
+				isin: isin,
+				url:  "",
+			})
+		}
+		wts[w.WorkerID] = ts
+
+	}
+
+	eng, err := taskengine.NewEngine(ws, wts)
+	if err != nil {
+		return nil, err
+	}
+	return eng.ExecuteEvents(context.Background())
 }

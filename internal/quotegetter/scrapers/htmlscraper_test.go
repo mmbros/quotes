@@ -357,16 +357,16 @@ func TestQuoteGetterGetQuote(t *testing.T) {
 			ctx = newctx
 		}
 
-		res, err := qg.GetQuote(ctx, isin, "")
+		res := qg.GetQuote(ctx, isin, "")
 
 		prefix := fmt.Sprintf("GetQuote[%s]", tc.title)
 
 		if len(tc.errstr) > 0 {
-			require.Error(t, err)
-			require.Contains(t, err.Error(), tc.errstr, prefix)
+			require.Error(t, res.Err)
+			require.Contains(t, res.Err.Error(), tc.errstr, prefix)
 			continue
 		}
-		assert.NoError(t, err, prefix)
+		assert.NoError(t, res.Err, prefix)
 		assert.Equal(t, tc.currency, res.Currency, "%s: Currency", prefix)
 		assert.Equal(t, tc.price, res.Price, "%s: Price", prefix)
 	}

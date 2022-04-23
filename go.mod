@@ -9,13 +9,20 @@ require (
 	github.com/mmbros/flagx v0.1.1
 	github.com/mmbros/taskengine v0.3.0
 	github.com/pelletier/go-toml v1.9.5
-	github.com/stretchr/testify v1.2.2
+	github.com/stretchr/testify v1.7.1
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+)
+
+require (
+	github.com/mattn/go-runewidth v0.0.13 // indirect
+	github.com/rivo/uniseg v0.2.0 // indirect
+	golang.org/x/sys v0.0.0-20220422013727-9388b58f7150 // indirect
 )
 
 require (
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/jedib0t/go-pretty/v6 v6.3.1
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/net v0.0.0-20220421235706-1d1ef9303861 // indirect
 )

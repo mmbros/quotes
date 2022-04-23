@@ -71,7 +71,11 @@ func execGet(flags *Flags, cfg *Config) error {
 
 	// do retrieves the quotes
 	sis := cfg.SourceIsinsList()
-	return quote.Get(mAvailableSources, sis, cfg.Database, cfg.taskengMode)
+	results, err := quote.Get(mAvailableSources, sis, cfg.Database, cfg.taskengMode)
+
+	fmt.Println(results)
+
+	return err
 }
 
 func printDryRunInfo(w io.Writer, flags *Flags, cfg *Config) error {

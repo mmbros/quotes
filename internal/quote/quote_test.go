@@ -32,7 +32,7 @@ func newDummyQuoteGetter(source string, client *http.Client) quotegetter.QuoteGe
 func (qg *dummyQuoteGetter) Source() string       { return qg.source }
 func (qg *dummyQuoteGetter) Client() *http.Client { return qg.client }
 
-func (qg *dummyQuoteGetter) GetQuote(ctx context.Context, isin, url string) (*quotegetter.Result, error) {
+func (qg *dummyQuoteGetter) GetQuote(ctx context.Context, isin, url string) *quotegetter.Result {
 
 	cases := map[string]*struct {
 		err  bool
@@ -51,23 +51,27 @@ func (qg *dummyQuoteGetter) GetQuote(ctx context.Context, isin, url string) (*qu
 	c := cases[key]
 
 	if c == nil {
-		return nil, quotegetter.NewError(qg.source, isin, url, fmt.Errorf("not implemented"))
+		return &quotegetter.Result{
+			URL: url,
+			Err: fmt.Errorf("dummyQuoteGetter: %s, %s: not implemented", qg.source, isin),
+		}
 	}
 
 	if c.wait > 0 {
 		time.Sleep(time.Duration(c.wait) * time.Millisecond)
 	}
 	if c.err {
-		return nil, quotegetter.NewError(qg.source, isin, url, fmt.Errorf("generic error"))
+		return &quotegetter.Result{
+			URL: url,
+			Err: fmt.Errorf("dummyQuoteGetter: %s, %s: generic error", qg.source, isin),
+		}
 	}
 	res := &quotegetter.Result{
-		Source:   qg.source,
-		Isin:     isin,
 		Date:     time.Now(),
 		Currency: "EUR",
 		Price:    12.35,
 	}
-	return res, nil
+	return res
 }
 
 func TestCheckListOfSourceIsins(t *testing.T) {
@@ -167,7 +171,7 @@ func TestGetResults(t *testing.T) {
 			Isins:   []string{"isin1", "isin2"},
 		},
 	}
-	res, err := getResults(availableSources, sis, taskengine.AllResults)
+	res, err := Get(availableSources, sis, "", taskengine.AllResults)
 	if assert.NoError(t, err) {
 		assert.Equal(t, 3, len(res))
 		// t.Fatalf("res %v", jsonString(res))
