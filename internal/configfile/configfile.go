@@ -8,8 +8,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-
-	"github.com/mmbros/quotes/internal/errors"
 )
 
 type enumConfigSource int
@@ -117,7 +115,7 @@ func newInfoFromCommandLine(path, format string) (*SourceInfo, error) {
 		// if it is not blank, check if exists
 		_, err = os.Stat(path)
 		if err != nil {
-			err = errors.WrapErrorf(err, "configfile: command-line config file: %v", err.Error())
+			err = fmt.Errorf("configfile: command-line config file: %w", err)
 		}
 	}
 
@@ -154,7 +152,7 @@ func newInfoFromEnv(appname, keyPrefix string) (*SourceInfo, error) {
 	if info.path != "" {
 		_, err = os.Stat(info.path)
 		if err != nil {
-			err = errors.WrapErrorf(err, "configfile: environment config file: %v", err.Error())
+			err = fmt.Errorf("configfile: environment config file: %w", err)
 		}
 	}
 
