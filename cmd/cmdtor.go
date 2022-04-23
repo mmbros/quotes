@@ -42,7 +42,7 @@ func parseExecTor(fullname string, arguments []string) error {
 	}
 
 	// get configuration
-	cfg, err = getConfig(flags, availableQuoteGetters.Names())
+	cfg, err = getConfig(flags, mAvailableSources.Names())
 	if err != nil {
 		return err
 	}

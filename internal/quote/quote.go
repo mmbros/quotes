@@ -11,7 +11,6 @@ import (
 	"github.com/mmbros/quotes/internal/quotegetter"
 	"github.com/mmbros/quotes/internal/quotegetter/scrapers"
 	"github.com/mmbros/quotes/internal/quotegetterdb"
-	"github.com/mmbros/quotes/internal/sources"
 	"github.com/mmbros/taskengine"
 )
 
@@ -129,7 +128,7 @@ func dbInsert(dbpath string, results []*resultGetQuote) error {
 }
 
 // checkListOfSourceIsins checks the validity of the given SourceIsins items
-func checkListOfSourceIsins(availableSources *sources.QuoteGetterSources, items []*SourceIsins) error {
+func checkListOfSourceIsins(availableSources quotegetter.Sources, items []*SourceIsins) error {
 	used := map[string]struct{}{}
 
 	for _, item := range items {
@@ -153,7 +152,7 @@ func checkListOfSourceIsins(availableSources *sources.QuoteGetterSources, items 
 // The mode parameters specified the taskengine mode of execution.
 // The results quotes are printed in json format.
 // The quotes are also saved to the database, if the dbpath is given.
-func Get(availableSources *sources.QuoteGetterSources, items []*SourceIsins, dbpath string, mode taskengine.Mode) error {
+func Get(availableSources quotegetter.Sources, items []*SourceIsins, dbpath string, mode taskengine.Mode) error {
 
 	results, err := getResults(availableSources, items, mode)
 	if err != nil {
@@ -177,7 +176,7 @@ func Get(availableSources *sources.QuoteGetterSources, items []*SourceIsins, dbp
 }
 
 // getResults executes the tasks in order to retrieve the quotes.
-func getResults(availableSources *sources.QuoteGetterSources,
+func getResults(availableSources quotegetter.Sources,
 	items []*SourceIsins,
 	mode taskengine.Mode) ([]*resultGetQuote, error) {
 
@@ -275,7 +274,7 @@ func getResults(availableSources *sources.QuoteGetterSources,
 	return results, nil
 }
 
-func initQuoteGetters(availableSources *sources.QuoteGetterSources, src []*SourceIsins) (map[string]quotegetter.QuoteGetter, error) {
+func initQuoteGetters(availableSources quotegetter.Sources, src []*SourceIsins) (map[string]quotegetter.QuoteGetter, error) {
 	quoteGetter := make(map[string]quotegetter.QuoteGetter)
 
 	proxyClient := map[string]*http.Client{}
@@ -292,7 +291,7 @@ func initQuoteGetters(availableSources *sources.QuoteGetterSources, src []*Sourc
 			proxyClient[s.Proxy] = client
 		}
 
-		fn := availableSources.Get(name)
+		fn := availableSources[name]
 		if fn == nil {
 			panic("invalid source: " + name)
 		}

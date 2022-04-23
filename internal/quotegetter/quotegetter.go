@@ -8,8 +8,6 @@ import (
 	"time"
 )
 
-type NewQuoteGetterFunc func(string, *http.Client) QuoteGetter
-
 // QuoteGetter interface
 type QuoteGetter interface {
 	Source() string

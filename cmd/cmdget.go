@@ -46,7 +46,7 @@ func parseExecGet(fullname string, arguments []string) error {
 	}
 
 	// get configuration
-	cfg, err = getConfig(flags, availableQuoteGetters.Names())
+	cfg, err = getConfig(flags, mAvailableSources.Names())
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func execGet(flags *Flags, cfg *Config) error {
 
 	// do retrieves the quotes
 	sis := cfg.SourceIsinsList()
-	return quote.Get(availableQuoteGetters, sis, cfg.Database, cfg.taskengMode)
+	return quote.Get(mAvailableSources, sis, cfg.Database, cfg.taskengMode)
 }
 
 func printDryRunInfo(w io.Writer, flags *Flags, cfg *Config) error {
