@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/mmbros/quotes/internal/configfile"
-	"github.com/mmbros/quotes/internal/quote"
+	"github.com/mmbros/quotes/internal/quotes"
 	"github.com/mmbros/taskengine"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -245,11 +245,11 @@ func TestWorkers(t *testing.T) {
 	cases := map[string]struct {
 		argtxt string
 		cfgtxt string
-		want   []*quote.SourceIsins
+		want   []*quotes.SourceIsins
 		errmsg string
 	}{
 		"none": {
-			want: []*quote.SourceIsins{},
+			want: []*quotes.SourceIsins{},
 		},
 		"workers = 0": {
 			argtxt: "-w 0 -i isin1",
@@ -261,13 +261,13 @@ func TestWorkers(t *testing.T) {
 		},
 		"workers > 0": {
 			argtxt: "-w 10 -i isin1",
-			want: []*quote.SourceIsins{
+			want: []*quotes.SourceIsins{
 				{Source: "source1", Workers: 10, Isins: []string{"isin1"}},
 			},
 		},
 		"default with args": {
 			argtxt: "-i isin1",
-			want: []*quote.SourceIsins{
+			want: []*quotes.SourceIsins{
 				{Source: "source1", Workers: defaultWorkers, Isins: []string{"isin1"}},
 			},
 		},
@@ -275,13 +275,13 @@ func TestWorkers(t *testing.T) {
 			cfgtxt: `isins:
   isin1:
     sources: [source1]`,
-			want: []*quote.SourceIsins{
+			want: []*quotes.SourceIsins{
 				{Source: "source1", Workers: defaultWorkers, Isins: []string{"isin1"}},
 			},
 		},
 		"args with source1:0": {
 			argtxt: "-i isin1 -s source1:0",
-			want: []*quote.SourceIsins{
+			want: []*quotes.SourceIsins{
 				{Source: "source1", Workers: defaultWorkers, Isins: []string{"isin1"}},
 			},
 		},
@@ -291,19 +291,19 @@ func TestWorkers(t *testing.T) {
 		},
 		"args with source1:100": {
 			argtxt: "-i isin1 -s source1:100",
-			want: []*quote.SourceIsins{
+			want: []*quotes.SourceIsins{
 				{Source: "source1", Workers: 100, Isins: []string{"isin1"}},
 			},
 		},
 		"args with source1#100": {
 			argtxt: "-i isin1 -s source1#100",
-			want: []*quote.SourceIsins{
+			want: []*quotes.SourceIsins{
 				{Source: "source1", Workers: 100, Isins: []string{"isin1"}},
 			},
 		},
 		"args with source1/100": {
 			argtxt: "-i isin1 -s source1/100",
-			want: []*quote.SourceIsins{
+			want: []*quotes.SourceIsins{
 				{Source: "source1", Workers: 100, Isins: []string{"isin1"}},
 			},
 		},
@@ -320,7 +320,7 @@ sources:
   source1:
     workers: 0
 `,
-			want: []*quote.SourceIsins{
+			want: []*quotes.SourceIsins{
 				{Source: "source1", Workers: defaultWorkers, Isins: []string{"isin1"}},
 			},
 		},

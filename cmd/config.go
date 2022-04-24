@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/mmbros/quotes/internal/configfile"
-	"github.com/mmbros/quotes/internal/quote"
+	"github.com/mmbros/quotes/internal/quotes"
 	"github.com/mmbros/taskengine"
 	toml "github.com/pelletier/go-toml"
 	"gopkg.in/yaml.v3"
@@ -459,7 +459,7 @@ func (cfg *Config) check(allSources []string) error {
 // SourceIsinsList ...
 // If no sources, returns a list with zero items (it does not returns nil).
 // NOTE: it assumes all isins and sources are enabled
-func (cfg *Config) SourceIsinsList() []*quote.SourceIsins {
+func (cfg *Config) SourceIsinsList() []*quotes.SourceIsins {
 
 	// build a map from (enabled) source to (enabled) isins
 	sources := map[string][]string{}
@@ -485,11 +485,11 @@ func (cfg *Config) SourceIsinsList() []*quote.SourceIsins {
 		}
 	}
 
-	sis := make([]*quote.SourceIsins, 0, len(sources))
+	sis := make([]*quotes.SourceIsins, 0, len(sources))
 	for s, isins := range sources {
 		src := cfg.Sources[s]
 
-		si := &quote.SourceIsins{
+		si := &quotes.SourceIsins{
 			Source:  s,
 			Proxy:   src.Proxy,
 			Workers: src.Workers,

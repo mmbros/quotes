@@ -1,4 +1,4 @@
-package quote
+package quotes
 
 import (
 	"context"
@@ -165,7 +165,7 @@ func TestGetResults(t *testing.T) {
 			Isins:   []string{"isin1", "isin2"},
 		},
 	}
-	res, err := Get(availableSources, sis, "", taskengine.AllResults)
+	res, err := Get(availableSources, sis, taskengine.AllResults, nil)
 	if assert.NoError(t, err) {
 		assert.Equal(t, 3, len(res))
 		// t.Fatalf("res %v", jsonString(res))

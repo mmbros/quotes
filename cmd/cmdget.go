@@ -4,8 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"os"
 
-	"github.com/mmbros/quotes/internal/quote"
+	"github.com/mmbros/quotes/internal/quotes"
 )
 
 const usageGet = `Usage: 
@@ -71,7 +72,7 @@ func execGet(flags *Flags, cfg *Config) error {
 
 	// do retrieves the quotes
 	sis := cfg.SourceIsinsList()
-	results, err := quote.Get(mAvailableSources, sis, cfg.Database, cfg.taskengMode)
+	results, err := quotes.Get(mAvailableSources, sis, cfg.taskengMode, os.Stdout)
 
 	fmt.Println(results)
 
