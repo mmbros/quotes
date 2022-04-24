@@ -48,20 +48,25 @@ type Result struct {
 	Err       error      `json:"-"`
 }
 
-// // String representation of the task.
-// // Method of the taskengine.Result interface
-// func (r *resultGetQuote) String() string {
-// 	if r.Err != nil {
-// 		return "n/a"
-// 	}
-// 	return fmt.Sprintf("%.2f %s", r.Price, r.Currency)
-// }
+type resultGetQuote struct {
+	*quotegetter.Result
+	Err error
+}
 
-// // The error returned by the Work function.
-// // Method of the taskengine.Result interface
-// func (r *resultGetQuote) Error() error {
-// 	return r.Err
-// }
+// String representation of the task.
+// Method of the taskengine.Result interface
+func (r *resultGetQuote) String() string {
+	if r.Err != nil {
+		return "n/a"
+	}
+	return fmt.Sprintf("%.2f %s", r.Price, r.Currency)
+}
+
+// The error returned by the Work function.
+// Method of the taskengine.Result interface
+func (r *resultGetQuote) Error() error {
+	return r.Err
+}
 
 // func (r *resultGetQuote) dbInsert(db *quotegetterdb.QuoteDatabase) error {
 // 	var qr *quotegetterdb.QuoteRecord
@@ -149,18 +154,18 @@ func checkListOfSourceIsins(availableSources quotegetter.Sources, items []*Sourc
 // The quotes are also saved to the database, if the dbpath is given.
 func Get(availableSources quotegetter.Sources, items []*SourceIsins, dbpath string, mode taskengine.Mode) ([]*Result, error) {
 
-	type addResultFunc func(*taskengine.Event) bool
+	type saveResultFunc func(*taskengine.Event) bool
 
-	var addResult addResultFunc
+	var saveResult saveResultFunc
 	switch mode {
 	case taskengine.FirstSuccessOrLastResult:
-		addResult = func(e *taskengine.Event) bool { return e.IsFirstSuccessOrLastResult() }
+		saveResult = func(e *taskengine.Event) bool { return e.IsFirstSuccessOrLastResult() }
 	case taskengine.ResultsUntilFirstSuccess:
-		addResult = func(e *taskengine.Event) bool { return e.IsResultUntilFirstSuccess() }
+		saveResult = func(e *taskengine.Event) bool { return e.IsResultUntilFirstSuccess() }
 	case taskengine.SuccessOrErrorResults:
-		addResult = func(e *taskengine.Event) bool { return e.IsSuccessOrError() }
+		saveResult = func(e *taskengine.Event) bool { return e.IsSuccessOrError() }
 	case taskengine.AllResults:
-		addResult = func(e *taskengine.Event) bool { return e.IsResult() }
+		saveResult = func(e *taskengine.Event) bool { return e.IsResult() }
 	}
 
 	results := []*Result{}
@@ -173,7 +178,7 @@ func Get(availableSources quotegetter.Sources, items []*SourceIsins, dbpath stri
 
 	for event := range eventc {
 
-		if addResult(event) {
+		if saveResult(event) {
 
 			result := &Result{
 				Isin:      string(event.Task.TaskID()),
@@ -184,12 +189,12 @@ func Get(availableSources quotegetter.Sources, items []*SourceIsins, dbpath stri
 			}
 
 			if event.Type() == taskengine.EventSuccess {
-				qgResult := event.Result.(*quotegetter.Result)
+				rqq := event.Result.(*resultGetQuote)
 
-				result.Price = qgResult.Price
-				result.Currency = qgResult.Currency
-				result.URL = qgResult.URL
-				result.Date = &qgResult.Date
+				result.Price = rqq.Price
+				result.Currency = rqq.Currency
+				result.URL = rqq.URL
+				result.Date = &rqq.Date
 				// progr.SetSuccess(tid, string(event.WorkerID), result.price, result.currency)
 				// rs.TaskSuccess++
 			} else {
@@ -387,7 +392,8 @@ func getEventsChan(availableSources quotegetter.Sources, items []*SourceIsins) (
 		wfn := func(ctx context.Context, worker *taskengine.Worker, inst int, task taskengine.Task) taskengine.Result {
 			//  from taskengine.Task to taskGetQuote
 			t := task.(*taskGetQuote)
-			return qg.GetQuote(ctx, t.isin, t.url)
+			r, err := qg.GetQuote(ctx, t.isin, t.url)
+			return &resultGetQuote{r, err}
 		}
 
 		// worker

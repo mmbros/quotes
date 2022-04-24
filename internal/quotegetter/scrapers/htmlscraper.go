@@ -55,15 +55,8 @@ func NewQuoteGetter(scr Scraper) quotegetter.QuoteGetter {
 // }
 
 // GetQuote implements the method of the QuoteGetter interface
-func (qg *quoteGetter) GetQuote(ctx context.Context, isin, url string) *quotegetter.Result {
-	res, err := getQuote(ctx, isin, url, qg)
-	if res == nil {
-		res = &quotegetter.Result{}
-	}
-	if err != nil {
-		res.Err = err
-	}
-	return res
+func (qg *quoteGetter) GetQuote(ctx context.Context, isin, url string) (*quotegetter.Result, error) {
+	return getQuote(ctx, isin, url, qg)
 }
 
 // getInfoFromDoc parse the info page and returns the result
