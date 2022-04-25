@@ -145,7 +145,11 @@ func Get(availableSources quotegetter.Sources, items []*SourceIsins, mode tasken
 				result.Date = &wres.Date
 			} else {
 				result.Err = event.Result.Error()
-				result.ErrMsg = result.Err.Error()
+				if etype == taskengine.EventCanceled {
+					result.ErrMsg = context.Canceled.Error()
+				} else {
+					result.ErrMsg = result.Err.Error()
+				}
 			}
 
 			results = append(results, result)

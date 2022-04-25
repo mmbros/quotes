@@ -12,10 +12,11 @@ const usageApp = `Usage:
     %s <command> [options]
 
 Available Commands:
-    get (g)      Get the quotes of the specified isins
-    sources (s)  Show available sources
-    tor (t)      Check if Tor network will be used
-    version (v)  Version information
+    get (g)        Get the quotes of the specified isins
+    server (se)    Start an http server to show json files
+    sources (so)   Show available sources
+    tor (t)        Check if Tor network will be used
+    version (v)    Version information
 
 Common options:
     -h, --help   Help informations
@@ -30,11 +31,14 @@ func initApp() *flagx.Command {
 			"get,g": {
 				ParseExec: parseExecGet,
 			},
+			"server,se": {
+				ParseExec: parseExecServer,
+			},
+			"sources,so": {
+				ParseExec: parseExecSources,
+			},
 			"tor,t": {
 				ParseExec: parseExecTor,
-			},
-			"sources,s": {
-				ParseExec: parseExecSources,
 			},
 			"version,v": {
 				ParseExec: parseExecVersion,

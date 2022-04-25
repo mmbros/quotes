@@ -1,0 +1,177 @@
+/* https://codepen.io/alvarotrigo/pen/VwMJgGO */
+
+
+
+:root {
+  --fg: #555;
+  --bg: #eee;
+  --bgalt: #fff;
+}
+
+*, *:before, *:after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font: 14px/1  sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+}
+
+
+
+
+
+article {
+  display: grid;
+  grid-template-columns: 300px auto;
+  gap: 0px;
+  margin: 0;
+}
+
+aside {
+  padding: 10px;
+}
+
+
+
+
+rect {
+  opacity: 25%;
+  stroke: gray;
+  stroke-width: 1;
+}
+
+rect.success {
+  fill: #4f4;
+}
+
+rect.canceled {
+  fill: #777;
+}
+
+rect.error {
+  fill: #f44;
+  stroke-width: 1;
+}
+
+rect.highlight {
+  opacity: 75%;
+}
+
+rect.current {
+  stroke: black;
+  stroke-width: 2;
+}
+
+
+
+h1 {
+  padding: 10px 0;
+  font-weight: 400;
+  text-align: center;
+}
+
+p {
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+main {
+  min-width: 320px;
+  max-width: 100%;
+  padding: 10px;
+  margin: 0 0;
+  background: var(--bgalt);
+}
+
+section {
+  display: none;
+  padding: 0px 0 0;
+  border-top: 1px solid #ddd;
+}
+
+input {
+  display: none;
+}
+
+label {
+  display: inline-block;
+  margin: 0 0 -1px;
+  padding: 15px 25px;
+  font-weight: 600;
+  text-align: center;
+  color: #bbb;
+  border: 1px solid transparent;
+}
+
+label:before {
+  font-weight: normal;
+  margin-right: 10px;
+}
+
+label:hover {
+  color: #888;
+  cursor: pointer;
+}
+
+input:checked + label {
+  color: #555;
+  border: 1px solid #ddd;
+  border-top: 2px solid orange;
+  border-bottom: 1px solid #fff;
+}
+
+#tab1:checked ~ #content1,
+#tab2:checked ~ #content2,
+#tab3:checked ~ #content3,
+#tab4:checked ~ #content4 {
+  display: block;
+}
+
+@media screen and (max-width: 650px) {
+  label {
+    font-size: 0;
+  }
+
+  label:before {
+    margin: 0;
+    font-size: 18px;
+  }
+}
+@media screen and (max-width: 400px) {
+  label {
+    padding: 15px;
+  }
+}
+
+
+#info table {
+  width: 100%;
+  margin-top: 1em;
+  border-collapse: collapse;
+  background: var(--bgalt);
+}
+
+#info th, #info td {
+  border: 1px solid gray;
+  font-weight: normal;
+  text-align: left;
+  padding: 4px 4px;
+}
+
+#info th[scope="rowgroup"] {
+  color: #555;
+  background: var(--bg);
+  font-weight: bold;
+  border: none;
+  /* padding: 8px 4px; */
+}
+
+#info td:nth-child(2) { text-align: end; }

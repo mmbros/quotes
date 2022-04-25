@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>quotes viewer</title>
+<link type="text/css" href="style.css" rel="stylesheet">
+
+
+</head>
+<body>
+<h1>quotes viewer</h1>
+
+<article>
+
+
+<aside>
+  <select name="filejson" id="filejson"></select>
+  <div id="info">
+
+<table>
+  <tr>
+    <th colspan="2" scope="rowgroup">scenario</th>
+  </tr>
+  <tr>
+    <th>workers</th>
+    <td id="workers"></td>
+  </tr>
+  <tr>
+    <th>tasks</th>
+    <td id="tasks"></td>
+  </tr>
+  <tr>
+    <th>tasks success</th>
+    <td id="tasks_success"></td>
+  </tr>
+  <tr>
+    <th>tasks error</th>
+    <td id="tasks_error"></td>
+  </tr>
+
+  <tr>
+    <th colspan="2" scope="rowgroup">elapsed</th>
+  </tr>
+  <tr>
+    <th>total</th>
+    <td id="elapsed_tot"></td>
+  </tr>
+  <tr>
+    <th>tasks min</th>
+    <td id="elapsed_task_min"></td>
+  </tr>
+  <tr>
+    <th>tasks avg</th>
+    <td id="elapsed_task_avg"></td>
+  </tr>
+  <tr>
+    <th>tasks max</th>
+    <td id="elapsed_task_max"></td>
+  </tr>
+
+  <tr>
+    <th colspan="2" scope="rowgroup">task</th>
+  </tr>
+  <tr>
+    <th>task_id</th>
+    <td id="task_id"></td>
+  </tr>
+  <tr>
+    <th>status</th>
+    <td id="task_status"></td>
+  </tr>
+  <tr>
+    <th>workers</th>
+    <td id="task_workers"></td>
+  </tr>
+  <tr>
+    <th>workers success</th>
+    <td id="task_workers_success"></td>
+  </tr>
+  <tr>
+    <th>workers error</th>
+    <td id="task_workers_error"></td>
+  </tr>
+  <tr>
+    <th>workers canceled</th>
+    <td id="task_workers_canceled"></td>
+  </tr>
+  <tr>
+    <th>start</th>
+    <td id="task_msec_min"></td>
+  </tr>
+  <tr>
+    <th>end</th>
+    <td id="task_msec_max"></td>
+  </tr>
+  <tr>
+    <th>elapsed</th>
+    <td id="task_msec_elapsed"></td>
+  </tr>
+
+  <tr>
+    <th colspan="2" scope="rowgroup">job</th>
+  </tr>
+  <tr>
+    <th>task_id</th>
+    <td id="job_task_id"></td>
+  </tr>
+  <tr>
+    <th>worker_id</th>
+    <td id="job_worker_id"></td>
+  </tr>
+  <tr>
+    <th>status</th>
+    <td id="job_status"></td>
+  </tr>
+  <tr>
+    <th>start</th>
+    <td id="job_msec_start"></td>
+  </tr>
+  <tr>
+    <th>end</th>
+    <td id="job_msec_end"></td>
+  </tr>
+  <tr>
+    <th>elapsed</th>
+    <td id="job_msec_elapsed"></td>
+  </tr>
+  
+
+</table>
+
+
+  </div>
+</aside>
+
+<main>
+
+<input id="tab2" type="radio" name="tabs" checked>
+<label for="tab2">Workers</label>
+
+<input id="tab3" type="radio" name="tabs">
+<label for="tab3">Tasks</label>
+
+        
+<section id="content2">
+  <div id="graphWorkers"></div>
+</section>
+  
+<section id="content3">
+    <div id="graphTasks"></div>
+</section>
+  
+
+
+</main>
+
+</article>
+
+
+
+
+
+
+
+<!-- <div id="scatter_area"></div> -->
+
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.4.4/d3.min.js" integrity="sha512-hnFpvCiJ8Fr1lYLqcw6wLgFUOEZ89kWCkO+cEekwcWPIPKyknKV1eZmSSG3UxXfsSuf+z/SgmiYB1zFOg3l2UQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
