@@ -25,17 +25,18 @@ type SourceIsins struct {
 // Result.Date field is a pointer in order to omit zero dates.
 // see https://stackoverflow.com/questions/32643815/json-omitempty-with-time-time-field
 type Result struct {
-	Isin      string     `json:"isin,omitempty"`
-	Source    string     `json:"source,omitempty"`
-	Instance  int        `json:"instance"`
-	URL       string     `json:"url,omitempty"`
-	Price     float32    `json:"price,omitempty"`
-	Currency  string     `json:"currency,omitempty"`
-	Date      *time.Time `json:"date,omitempty"` // need a pointer to omit zero date
-	TimeStart time.Time  `json:"time_start"`
-	TimeEnd   time.Time  `json:"time_end"`
-	ErrMsg    string     `json:"error,omitempty"`
-	Err       error      `json:"-"`
+	Isin      string               `json:"isin,omitempty"`
+	Source    string               `json:"source,omitempty"`
+	Instance  int                  `json:"instance"`
+	URL       string               `json:"url,omitempty"`
+	Price     float32              `json:"price,omitempty"`
+	Currency  string               `json:"currency,omitempty"`
+	Date      *time.Time           `json:"date,omitempty"` // need a pointer to omit zero date
+	TimeStart time.Time            `json:"time_start"`
+	TimeEnd   time.Time            `json:"time_end"`
+	ErrMsg    string               `json:"error,omitempty"`
+	Err       error                `json:"-"`
+	Status    taskengine.EventType `json:"status"`
 }
 
 // workerTask struct contains the info for retrieve the quote by a source.
@@ -88,7 +89,7 @@ func Get(availableSources quotegetter.Sources, items []*SourceIsins, mode tasken
 		saveResult = func(e *taskengine.Event) bool { return e.IsResultUntilFirstSuccess() }
 	case taskengine.SuccessOrErrorResults:
 		saveResult = func(e *taskengine.Event) bool { return e.IsSuccessOrError() }
-	case taskengine.AllResults:
+	default:
 		saveResult = func(e *taskengine.Event) bool { return e.IsResult() }
 	}
 
@@ -110,8 +111,21 @@ func Get(availableSources quotegetter.Sources, items []*SourceIsins, mode tasken
 	for event := range eventc {
 
 		taskid := string(event.Task.TaskID())
+		etype := event.Type()
+
 		progr.InitTrackerIfNew(taskid)
 
+		// handle progress update
+		if event.IsFirstSuccessOrLastResult() {
+			if etype == taskengine.EventSuccess {
+				wres := event.Result.(*workerResult)
+				progr.SetSuccess(taskid, string(event.WorkerID), wres.Price, wres.Currency)
+			} else {
+				progr.SetError(taskid)
+			}
+		}
+
+		// handle results update
 		if saveResult(event) {
 
 			result := &Result{
@@ -120,29 +134,23 @@ func Get(availableSources quotegetter.Sources, items []*SourceIsins, mode tasken
 				Instance:  event.WorkerInst,
 				TimeStart: event.TimeStart,
 				TimeEnd:   event.TimeEnd,
+				Status:    etype,
 			}
 
-			if event.Type() == taskengine.EventSuccess {
+			if etype == taskengine.EventSuccess {
 				wres := event.Result.(*workerResult)
-
 				result.Price = wres.Price
 				result.Currency = wres.Currency
 				result.URL = wres.URL
 				result.Date = &wres.Date
-
-				progr.SetSuccess(taskid, string(event.WorkerID), wres.Price, wres.Currency)
-				// rs.TaskSuccess++
 			} else {
-				// rs.TaskError++
 				result.Err = event.Result.Error()
 				result.ErrMsg = result.Err.Error()
-
-				progr.SetError(taskid)
 			}
 
 			results = append(results, result)
 		}
-	}
+	} // end event loop
 
 	if progr != nil {
 		progr.Render()

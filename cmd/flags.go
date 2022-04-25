@@ -33,6 +33,8 @@ const (
 	namesSources      = "sources,s"
 	namesWorkers      = "workers,w"
 	namesBuildOptions = "build-options,b"
+	namesOutput       = "output,o"
+	namesForce        = "force,f"
 )
 
 // Default args value
@@ -52,6 +54,9 @@ type Flags struct {
 	workers    int
 	mode       string
 
+	output string
+	force  bool
+
 	flagSet  *flag.FlagSet
 	fullname string
 }
@@ -66,8 +71,10 @@ func NewFlags(fullname string, flagsgroup flagsGroup) *Flags {
 	   - config-type
 	   - database
 	   - dry-run
+	   - force
 	   - isins
 	   - mode
+	   - output
 	   - proxy
 	   - sources
 	   - workers
@@ -111,6 +118,10 @@ func NewFlags(fullname string, flagsgroup flagsGroup) *Flags {
 		flagx.AliasedStringVar(fs, &flags.mode, namesMode, defaultMode, "")
 		flagx.AliasedStringsVar(fs, &flags.isins, namesIsins, "")
 		flagx.AliasedStringsVar(fs, &flags.sources, namesSources, "")
+
+		flagx.AliasedBoolVar(fs, &flags.force, namesForce, false, "")
+		flagx.AliasedStringVar(fs, &flags.output, namesOutput, "", "")
+
 	}
 
 	// flags only for Version operation

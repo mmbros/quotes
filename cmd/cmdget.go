@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -16,16 +17,18 @@ Options:
     -c, --config      path     config file
         --config-type string   used if config file does not have the extension in the name;
                                accepted values are: YAML, TOML and JSON 
-    -i, --isins       strings  list of isins to get the quotes
-    -n, --dry-run              perform a trial run with no request/updates made
-    -p, --proxy       url      default proxy
-    -s, --sources     strings  list of sources to get the quotes from
-    -w, --workers     int      number of workers (default %[2]d)
     -d, --database    dns      sqlite3 database used to save the quotes
+	-f, --force       bool     overwrite already existing output file
+    -i, --isins       strings  list of isins to get the quotes
     -m, --mode        char     result mode (default %[3]q): 
                                   "1" first success or last error
                                   "U" all errors until first success 
                                   "A" all 
+    -n, --dry-run              perform a trial run with no request/updates made
+    -o, --output      path     pathname of the output file (default stdout)
+    -p, --proxy       url      default proxy
+    -s, --sources     strings  list of sources to get the quotes from
+    -w, --workers     int      number of workers (default %[2]d)
 `
 
 func parseExecGet(fullname string, arguments []string) error {
@@ -55,28 +58,58 @@ func parseExecGet(fullname string, arguments []string) error {
 	return execGet(flags, cfg)
 }
 
-// func parseGet(fullname string, arguments []string) (*Args, error) {
-// 	args := NewArgs(fullname, fgAppGet)
-// 	args.Usage(usageGet, fullname)
-
-// 	err := fs.Parse(arguments)
-
-// 	return args, err
-// }
-
 func execGet(flags *Flags, cfg *Config) error {
 
 	if flags.dryrun {
 		return printDryRunInfo(flags.Output(), flags, cfg)
 	}
 
+	// handle the output
+	wInfo := os.Stdout
+	wOutput := os.Stdout // default
+	if flags.output != "" {
+		// overwrite existing file only if --force is specified
+		flag := os.O_WRONLY | os.O_CREATE | os.O_TRUNC
+		if !flags.force {
+			flag |= os.O_EXCL // file must not exists
+		}
+
+		// create the file
+		fout, err := os.OpenFile(flags.output, flag, 0666)
+		if err != nil {
+			return err
+		}
+		defer fout.Close()
+		wOutput = fout
+	}
+
 	// do retrieves the quotes
 	sis := cfg.SourceIsinsList()
-	results, err := quotes.Get(mAvailableSources, sis, cfg.taskengMode, os.Stdout)
+	results, err := quotes.Get(mAvailableSources, sis, cfg.taskengMode, wInfo)
+	if err != nil {
+		return err
+	}
 
-	fmt.Println(results)
+	// fmt.Fprintf(wInfo, "\n%d task completed (%d success, %d error) in %v\n",
+	// 	stats.TaskCompleted(),
+	// 	stats.TaskSuccess,
+	// 	stats.TaskError,
+	// 	timeEnd.Sub(timeStart))
+	// fmt.Fprintf(wInfo, "elapsed: %v\n", timeEnd.Sub(timeStart))
 
-	return err
+	// fmt.Fprintf(wInfo, "\n%d task completed (%d success, %d error) in %v\n",
+
+	stats := quotes.NewStats(results)
+	stats.Fprintln(wInfo)
+
+	// prints the results in json format
+	bytes, _ := json.MarshalIndent(results, "", "  ")
+	if err != nil {
+		return err
+	}
+	wOutput.Write(bytes)
+
+	return nil
 }
 
 func printDryRunInfo(w io.Writer, flags *Flags, cfg *Config) error {

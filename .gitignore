@@ -17,3 +17,4 @@
 *.html
 bin
 *.sqlite3
+*.json

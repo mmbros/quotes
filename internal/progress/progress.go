@@ -68,7 +68,7 @@ func New(w io.Writer, trackers int) *Progress {
 	pw.ShowTime(true)
 	pw.ShowTracker(false)
 	pw.ShowValue(true)
-	pw.SetMessageWidth(15)
+	pw.SetMessageWidth(40)
 
 	pw.SetSortBy(prog.SortByMessage)
 	pw.SetStyle(prog.StyleDefault)
