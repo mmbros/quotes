@@ -25,18 +25,18 @@ type SourceIsins struct {
 // Result.Date field is a pointer in order to omit zero dates.
 // see https://stackoverflow.com/questions/32643815/json-omitempty-with-time-time-field
 type Result struct {
-	Isin      string               `json:"isin,omitempty"`
-	Source    string               `json:"source,omitempty"`
-	Instance  int                  `json:"instance"`
-	URL       string               `json:"url,omitempty"`
-	Price     float32              `json:"price,omitempty"`
-	Currency  string               `json:"currency,omitempty"`
-	Date      *time.Time           `json:"date,omitempty"` // need a pointer to omit zero date
-	TimeStart time.Time            `json:"time_start"`
-	TimeEnd   time.Time            `json:"time_end"`
-	ErrMsg    string               `json:"error,omitempty"`
-	Err       error                `json:"-"`
-	Status    taskengine.EventType `json:"status"`
+	Isin      string     `json:"isin,omitempty"`
+	Source    string     `json:"source,omitempty"`
+	Instance  int        `json:"instance"`
+	URL       string     `json:"url,omitempty"`
+	Price     float32    `json:"price,omitempty"`
+	Currency  string     `json:"currency,omitempty"`
+	Date      *time.Time `json:"date,omitempty"` // need a pointer to omit zero date
+	TimeStart time.Time  `json:"time_start"`
+	TimeEnd   time.Time  `json:"time_end"`
+	// Err       *ErrorJsonizable     `json:"error,omitempty"`
+	Err    error                `json:"error,omitempty"`
+	Status taskengine.EventType `json:"status"`
 }
 
 // workerTask struct contains the info for retrieve the quote by a source.
@@ -144,12 +144,8 @@ func Get(availableSources quotegetter.Sources, items []*SourceIsins, mode tasken
 				result.URL = wres.URL
 				result.Date = &wres.Date
 			} else {
-				result.Err = event.Result.Error()
-				if etype == taskengine.EventCanceled {
-					result.ErrMsg = context.Canceled.Error()
-				} else {
-					result.ErrMsg = result.Err.Error()
-				}
+				result.Err = &ErrorJsonizable{event.Result.Error()}
+				// result.Err = event.Result.Error()
 			}
 
 			results = append(results, result)

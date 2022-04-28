@@ -38,7 +38,7 @@ func (r *Result) insert(db *quotegetterdb.QuoteDatabase) error {
 		Price:    r.Price,
 		Currency: r.Currency,
 		URL:      r.URL,
-		ErrMsg:   r.ErrMsg,
+		ErrMsg:   r.Err.Error(),
 	}
 	if r.Date != nil {
 		qr.Date = *r.Date
