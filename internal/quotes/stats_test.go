@@ -1,7 +1,8 @@
 package quotes
 
 import (
-	"os"
+	"regexp"
+	"strings"
 	"testing"
 	"time"
 
@@ -231,6 +232,17 @@ func TestNewStats_Fprintln(t *testing.T) {
 		},
 	}
 
-	stats.Fprintln(os.Stdout)
-	t.FailNow()
+	sb := &strings.Builder{}
+
+	re := regexp.MustCompile(`2 quotes (.*1 success.*, .*1 error.*) from 3 sources in 30s`)
+	want := "2 quotes (1 success, 1 error) from 3 sources in 30s"
+
+	stats.Fprintln(sb)
+	got := sb.String()
+	if !re.MatchString(got) {
+		if diff := cmp.Diff(want, got, nil); diff != "" {
+			t.Errorf("mismatch (-want +got):\n%s", diff)
+		}
+	}
+
 }

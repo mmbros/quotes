@@ -93,8 +93,8 @@ func Test_Help(t *testing.T) {
 			cmdline: "app sources -h",
 			want:    "app sources",
 		},
-		"app s --help (short version)": {
-			cmdline: "app s --help",
+		"app so --help (short version)": {
+			cmdline: "app so --help",
 			want:    "app sources",
 		},
 		"app tor -h": {

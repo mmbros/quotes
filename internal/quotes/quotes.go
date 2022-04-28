@@ -25,18 +25,17 @@ type SourceIsins struct {
 // Result.Date field is a pointer in order to omit zero dates.
 // see https://stackoverflow.com/questions/32643815/json-omitempty-with-time-time-field
 type Result struct {
-	Isin      string     `json:"isin,omitempty"`
-	Source    string     `json:"source,omitempty"`
-	Instance  int        `json:"instance"`
-	URL       string     `json:"url,omitempty"`
-	Price     float32    `json:"price,omitempty"`
-	Currency  string     `json:"currency,omitempty"`
-	Date      *time.Time `json:"date,omitempty"` // need a pointer to omit zero date
-	TimeStart time.Time  `json:"time_start"`
-	TimeEnd   time.Time  `json:"time_end"`
-	// Err       *ErrorJsonizable     `json:"error,omitempty"`
-	Err    error                `json:"error,omitempty"`
-	Status taskengine.EventType `json:"status"`
+	Isin      string               `json:"isin,omitempty"`
+	Source    string               `json:"source,omitempty"`
+	Instance  int                  `json:"instance"`
+	URL       string               `json:"url,omitempty"`
+	Price     float32              `json:"price,omitempty"`
+	Currency  string               `json:"currency,omitempty"`
+	Date      *time.Time           `json:"date,omitempty"` // need a pointer to omit zero date
+	TimeStart time.Time            `json:"time_start"`
+	TimeEnd   time.Time            `json:"time_end"`
+	Err       error                `json:"error,omitempty"`
+	Status    taskengine.EventType `json:"status"`
 }
 
 // workerTask struct contains the info for retrieve the quote by a source.
@@ -81,17 +80,7 @@ func Get(availableSources quotegetter.Sources, items []*SourceIsins, mode tasken
 
 	// saveResult return true if the event is a result that have to be saved
 	// according to the taskengine.Mode argument.
-	var saveResult func(*taskengine.Event) bool
-	switch mode {
-	case taskengine.FirstSuccessOrLastResult:
-		saveResult = func(e *taskengine.Event) bool { return e.IsFirstSuccessOrLastResult() }
-	case taskengine.ResultsUntilFirstSuccess:
-		saveResult = func(e *taskengine.Event) bool { return e.IsResultUntilFirstSuccess() }
-	case taskengine.SuccessOrErrorResults:
-		saveResult = func(e *taskengine.Event) bool { return e.IsSuccessOrError() }
-	default:
-		saveResult = func(e *taskengine.Event) bool { return e.IsResult() }
-	}
+	saveResult := taskengine.FilterEventFunc(mode)
 
 	// Init the chan that will receive the events (containing the results).
 	eventc, err := getEventsChan(availableSources, items)
@@ -116,7 +105,7 @@ func Get(availableSources quotegetter.Sources, items []*SourceIsins, mode tasken
 		progr.InitTrackerIfNew(taskid)
 
 		// handle progress update
-		if event.IsFirstSuccessOrLastResult() {
+		if taskengine.IsFirstSuccessOrLastResult(event) {
 			if etype == taskengine.EventSuccess {
 				wres := event.Result.(*workerResult)
 				progr.SetSuccess(taskid, string(event.WorkerID), wres.Price, wres.Currency)
@@ -145,7 +134,6 @@ func Get(availableSources quotegetter.Sources, items []*SourceIsins, mode tasken
 				result.Date = &wres.Date
 			} else {
 				result.Err = &ErrorJsonizable{event.Result.Error()}
-				// result.Err = event.Result.Error()
 			}
 
 			results = append(results, result)
@@ -161,14 +149,17 @@ func Get(availableSources quotegetter.Sources, items []*SourceIsins, mode tasken
 	return results, nil
 }
 
+// initQuoteGetters initializes the quotegetter func of each source.
 func initQuoteGetters(availableSources quotegetter.Sources, src []*SourceIsins) (map[string]quotegetter.QuoteGetter, error) {
 	quoteGetter := make(map[string]quotegetter.QuoteGetter)
 
+	// map that returns the http.Client of each different proxy
 	proxyClient := map[string]*http.Client{}
 
 	for _, s := range src {
-		name := s.Source
 
+		// Get the client corrisponding to the proxy.
+		// Create a new proxy client if needed.
 		client, ok := proxyClient[s.Proxy]
 		if !ok {
 			client, err := quotegetter.DefaultClient(s.Proxy)
@@ -178,6 +169,8 @@ func initQuoteGetters(availableSources quotegetter.Sources, src []*SourceIsins) 
 			proxyClient[s.Proxy] = client
 		}
 
+		// Build the quotegetter func of the source.
+		name := s.Source
 		fn := availableSources[name]
 		if fn == nil {
 			panic("invalid source: " + name)
@@ -188,21 +181,11 @@ func initQuoteGetters(availableSources quotegetter.Sources, src []*SourceIsins) 
 	return quoteGetter, nil
 }
 
-// func (scnr *Scenario) ExecuteEvents() (chan *taskengine.Event, error) {
-
-// 	if scnr.ws == nil {
-// 		return nil, errors.New("must run RandomWorkersAndTasks before")
-// 	}
-
-// 	ctx := context.Background()
-// 	eng, err := taskengine.NewEngine(scnr.ws, scnr.wts)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return eng.ExecuteEvents(ctx)
-// }
-
-// getEventsChan ...
+// getEventsChan is the core of the execution.
+// It creates a taskengine.Engine object using
+// the sources as workers and isins an tasks.
+// It returns the event chan that will receive the start / completed events
+// of each execution of quote retrival.
 func getEventsChan(availableSources quotegetter.Sources, items []*SourceIsins) (chan *taskengine.Event, error) {
 
 	// check input
@@ -260,7 +243,7 @@ func getEventsChan(availableSources quotegetter.Sources, items []*SourceIsins) (
 	return eng.ExecuteEvents(context.Background())
 }
 
-// checkListOfSourceIsins checks the validity of the given SourceIsins items
+// checkListOfSourceIsins checks the validity of the given SourceIsins items.
 func checkListOfSourceIsins(availableSources quotegetter.Sources, items []*SourceIsins) error {
 	used := map[string]struct{}{}
 
