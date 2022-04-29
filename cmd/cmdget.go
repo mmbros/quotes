@@ -84,6 +84,9 @@ func execGet(flags *Flags, cfg *Config) error {
 		wOutput = fout
 	}
 
+	// prints config file info
+	fmt.Fprintln(wInfo, cfg.cfi)
+
 	// do retrieves the quotes
 	sis := cfg.SourceIsinsList()
 	results, err := quotes.Get(mAvailableSources, sis, cfg.taskengMode, wInfo)
@@ -112,7 +115,7 @@ func execGet(flags *Flags, cfg *Config) error {
 
 	// print the output file path
 	if flags.output != "" {
-		fmt.Fprintf(wOutput, "saved output file %q\n", flags.output)
+		fmt.Fprintf(wInfo, "saved output file %q\n", flags.output)
 	}
 
 	// save to database
@@ -120,6 +123,7 @@ func execGet(flags *Flags, cfg *Config) error {
 		if err := quotegetterdb.DBInsert(cfg.Database, results); err != nil {
 			return err
 		}
+		fmt.Fprintf(wInfo, "saved database %q\n", cfg.Database)
 	}
 
 	return nil
