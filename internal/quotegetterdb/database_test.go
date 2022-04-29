@@ -1,9 +1,12 @@
 package quotegetterdb
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 	"time"
+
+	"github.com/mmbros/quotes/internal/quotes"
 )
 
 const (
@@ -79,8 +82,9 @@ var records = []*QuoteRecord{
 		ErrMsg:    "Isin not found",
 	}}
 
-// const dbpath = ":memory:"
-const dbpath = "/tmp/quote.sqlite3"
+const dbpath = ":memory:"
+
+//const dbpath = "/tmp/quote.sqlite3"
 
 func mustOpenDB() *QuoteDatabase {
 
@@ -96,16 +100,23 @@ func TestOpen(t *testing.T) {
 	// create the database
 	qdb, err := Open(dbpath)
 	if err != nil {
-		t.Fatal(err)
+		t.Errorf("open database: unexpected error: %v", err)
 	}
 	qdb.Close()
+
+	qdb, err = Open("xyz://error")
+	if err == nil {
+		t.Errorf("open database: expecting error, found no error")
+		qdb.Close()
+	}
+
 }
 
 func TestInsertQuotes(t *testing.T) {
 	qdb := mustOpenDB()
 	defer qdb.Close()
 
-	err := qdb.InsertQuotes(records...)
+	err := qdb.InsertQuotesRecords(records...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -157,3 +168,33 @@ func TestExtractPath(t *testing.T) {
 	}
 }
 */
+
+func TestDBInsert(t *testing.T) {
+
+	time1 := time.Date(2020, 01, 01, 0, 0, 0, 0, loc)
+	time2 := time.Date(2020, 02, 02, 0, 0, 0, 0, loc)
+
+	res1 := &quotes.Result{
+		Isin:     isin1,
+		Source:   source1,
+		Price:    10.1,
+		Currency: "USD",
+		Date:     &time1,
+		URL:      testURL(source1, isin1),
+	}
+
+	res2 := &quotes.Result{
+		Isin:     isin2,
+		Source:   source2,
+		Price:    20.2,
+		Currency: "EUR",
+		Date:     &time2,
+		URL:      testURL(source2, isin2),
+		Err:      errors.New("isin not found"),
+	}
+
+	err := DBInsert(dbpath, []*quotes.Result{res1, res2})
+	if err != nil {
+		t.Error(err)
+	}
+}

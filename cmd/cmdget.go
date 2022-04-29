@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/mmbros/quotes/internal/quotegetterdb"
 	"github.com/mmbros/quotes/internal/quotes"
 )
 
@@ -108,6 +109,18 @@ func execGet(flags *Flags, cfg *Config) error {
 		return err
 	}
 	wOutput.Write(bytes)
+
+	// print the output file path
+	if flags.output != "" {
+		fmt.Fprintf(wOutput, "saved output file %q\n", flags.output)
+	}
+
+	// save to database
+	if cfg.Database != "" {
+		if err := quotegetterdb.DBInsert(cfg.Database, results); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }

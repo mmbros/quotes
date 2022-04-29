@@ -1,12 +1,14 @@
 package quotegetterdb
 
 import (
-	"bytes"
+	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3" // Import go-sqlite3 library
+	"github.com/mmbros/quotes/internal/quotes"
 )
 
 // QuoteDatabase handles the database that store and retrieve quote informations.
@@ -28,48 +30,52 @@ type QuoteRecord struct {
 	ErrMsg    string
 }
 
-func (qr *QuoteRecord) String() string {
-	var buf bytes.Buffer
+// func (qr *QuoteRecord) String() string {
+// 	var buf bytes.Buffer
 
-	buf.WriteString(fmt.Sprintf("{id=%d, isin=%q, source=%q", qr.ID, qr.Isin, qr.Source))
-	buf.WriteString(fmt.Sprintf(", timestamp=%s", qr.Timestamp.UTC()))
+// 	buf.WriteString(fmt.Sprintf("{id=%d, isin=%q, source=%q", qr.ID, qr.Isin, qr.Source))
+// 	buf.WriteString(fmt.Sprintf(", timestamp=%s", qr.Timestamp.UTC()))
 
-	if !qr.Date.IsZero() {
-		buf.WriteString(fmt.Sprintf(", date=%s", qr.Date.Format("2006-01-02")))
-	}
-	if len(qr.Currency) > 0 {
-		buf.WriteString(fmt.Sprintf(", price=%.3f %s", qr.Price, qr.Currency))
-	}
-	if len(qr.URL) > 0 {
-		buf.WriteString(fmt.Sprintf(", url=%q", qr.URL))
-	}
-	if len(qr.ErrMsg) > 0 {
-		buf.WriteString(fmt.Sprintf(", err=%q", qr.ErrMsg))
-	}
-	buf.WriteString("}")
-	return buf.String()
+// 	if !qr.Date.IsZero() {
+// 		buf.WriteString(fmt.Sprintf(", date=%s", qr.Date.Format("2006-01-02")))
+// 	}
+// 	if len(qr.Currency) > 0 {
+// 		buf.WriteString(fmt.Sprintf(", price=%.3f %s", qr.Price, qr.Currency))
+// 	}
+// 	if len(qr.URL) > 0 {
+// 		buf.WriteString(fmt.Sprintf(", url=%q", qr.URL))
+// 	}
+// 	if len(qr.ErrMsg) > 0 {
+// 		buf.WriteString(fmt.Sprintf(", err=%q", qr.ErrMsg))
+// 	}
+// 	buf.WriteString("}")
+// 	return buf.String()
+// }
+
+// type errorQuoteDatabase struct {
+// 	msg string
+// 	err error
+// }
+
+func newError(format string, a ...any) error {
+	return fmt.Errorf(format, a...)
 }
 
-type errorQuoteDatabase struct {
-	msg string
-	err error
-}
+// func newError(msg string, err error) error {
+// 	return &errorQuoteDatabase{msg, err}
+// }
 
-func newError(msg string, err error) error {
-	return &errorQuoteDatabase{msg, err}
-}
+// func (e *errorQuoteDatabase) Error() string {
+// 	return fmt.Sprintf("%s: %s", e.msg, e.err)
+// }
 
-func (e *errorQuoteDatabase) Error() string {
-	return fmt.Sprintf("%s: %s", e.msg, e.err)
-}
+// func (e *errorQuoteDatabase) Unwrap() error {
+// 	return e.err
+// }
 
-func (e *errorQuoteDatabase) Unwrap() error {
-	return e.err
-}
-
-func (e *errorQuoteDatabase) Msg() string {
-	return e.msg
-}
+// func (e *errorQuoteDatabase) Msg() string {
+// 	return e.msg
+// }
 
 // ToNullString invalidates a sql.NullString if empty, validates if not empty
 func ToNullString(s string) sql.NullString {
@@ -80,12 +86,12 @@ func ToNullString(s string) sql.NullString {
 }
 
 // ToNullTime invalidates a sql.NullTime if IsZero, validates otherwise
-func ToNullTime(t time.Time) sql.NullTime {
-	return sql.NullTime{
-		Time:  t,
-		Valid: !t.IsZero(),
-	}
-}
+// func ToNullTime(t time.Time) sql.NullTime {
+// 	return sql.NullTime{
+// 		Time:  t,
+// 		Valid: !t.IsZero(),
+// 	}
+// }
 
 // ToNullFloat64 invalidates a sql.NullFloat64 if 0, validates otherwise
 func ToNullFloat64(f float64) sql.NullFloat64 {
@@ -128,7 +134,7 @@ func Open(dns string) (*QuoteDatabase, error) {
 		err = db.Ping()
 	}
 	if err != nil {
-		return nil, newError(fmt.Sprintf("Opening quotes database %q", dns), err)
+		return nil, newError("open quotes database %q: %w", dns, err)
 	}
 
 	qdb := &QuoteDatabase{dns, db}
@@ -147,12 +153,7 @@ func (qdb *QuoteDatabase) Close() error {
 	if qdb == nil || qdb.db == nil {
 		return nil
 	}
-
-	if err := qdb.db.Close(); err != nil {
-		return err
-	}
-
-	return nil
+	return qdb.db.Close()
 }
 
 func (qdb *QuoteDatabase) initDatabase() error {
@@ -209,7 +210,7 @@ errmsg TEXT
 
 	_, err := qdb.db.Exec(sql)
 	if err != nil {
-		return newError("Create table 'quotes'", err)
+		return newError("create table 'quotes': %w", err)
 	}
 
 	// create index if not exists
@@ -217,7 +218,7 @@ errmsg TEXT
 ON quotes (isin, source, datestamp, date);`
 	_, err = qdb.db.Exec(sql)
 	if err != nil {
-		return newError("Create index 'idx_quotes_isin_source_dates'", err)
+		return newError("create index 'idx_quotes_isin_source_dates': %w", err)
 	}
 
 	return nil
@@ -243,7 +244,7 @@ ON quotes (isin, source, datestamp, date);`
 // }
 
 // InsertQuotes insert the quotes in the quotes database.
-func (qdb *QuoteDatabase) InsertQuotes(items ...*QuoteRecord) error {
+func (qdb *QuoteDatabase) InsertQuotesRecords(items ...*QuoteRecord) error {
 	sql := `INSERT OR REPLACE INTO quotes(
 datestamp,
 timestamp,
@@ -258,7 +259,7 @@ errmsg
 `
 	stmt, err := qdb.db.Prepare(sql)
 	if err != nil {
-		return newError("Insert quote", err)
+		return newError("insert quote: prepare: %w", err)
 	}
 	defer stmt.Close()
 
@@ -272,13 +273,13 @@ errmsg
 		datestamp := time.Date(year, month, day, 0, 0, 0, 0, timestamp.Location())
 
 		_, err = stmt.Exec(datestamp, timestamp, i.Isin, i.Source,
-			i.Date, // ToNullTime(i.date),
+			i.Date, // ToNullTime(i.Date),
 			ToNullFloat64(float64(i.Price)),
 			ToNullString(i.Currency),
 			ToNullString(i.URL),
 			ToNullString(i.ErrMsg))
 		if err != nil {
-			return newError("Insert quote", err)
+			return newError("insert quote: execute: %w", err)
 		}
 	}
 
@@ -374,3 +375,71 @@ order by q.isin, q.timestamp desc, q.source
 	return result, nil
 }
 */
+
+func (qdb *QuoteDatabase) InsertQuotesResults(results ...*quotes.Result) error {
+	qrecords := []*QuoteRecord{}
+
+	// assert := func(b bool, label string) {
+	// 	if !b {
+	// 		panic("failed assert: " + label)
+	// 	}
+	// }
+
+	// assert(r != nil, "r != nil")
+	// assert(db != nil, "db != nil")
+
+	// skip context.Canceled errors
+	// if r.Err != nil  {
+	// 	if err, ok := r.Err.(*scrapers.Error); ok {
+	// 		if !errors.Is(err, context.Canceled) {
+	// 			return nil
+	// 		}
+	// 	}
+	// }
+
+	for _, r := range results {
+
+		if errors.Is(r.Err, context.Canceled) {
+			continue
+		}
+
+		qr := &QuoteRecord{
+			Isin:     r.Isin,
+			Source:   r.Source,
+			Price:    r.Price,
+			Currency: r.Currency,
+			URL:      r.URL,
+		}
+		if r.Date != nil {
+			qr.Date = *r.Date
+		}
+		if r.Err != nil {
+			qr.ErrMsg = r.Err.Error()
+
+		}
+		// isin and source are mandatory
+		// assert(len(qr.Isin) > 0, "len(qr.Isin) > 0")
+		// assert(len(qr.Source) > 0, "len(qr.Source) > 0")
+
+		qrecords = append(qrecords, qr)
+
+	}
+
+	// save to database
+	return qdb.InsertQuotesRecords(qrecords...)
+}
+
+func DBInsert(dbpath string, results []*quotes.Result) error {
+	if len(dbpath) == 0 {
+		return nil
+	}
+
+	// save to database
+	db, err := Open(dbpath)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	return db.InsertQuotesResults(results...)
+}
