@@ -238,11 +238,7 @@ func parseDate(str, layout string) (time.Time, error) {
 		return time.Unix(i, 0).UTC(), nil
 	}
 
-	loc, err := time.LoadLocation("Europe/Rome")
-	if err != nil {
-		return t, err
-	}
-	return time.ParseInLocation(layout, str, loc)
+	return time.ParseInLocation(layout, str, time.Local)
 }
 
 func parsePrice(str string) (float32, error) {
