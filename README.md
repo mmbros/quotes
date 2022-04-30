@@ -2,25 +2,23 @@
 
 Get stock/fund quotes from various sources.
 
-[![Build Status](https://travis-ci.com/mmbros/quotes.svg?branch=main)](https://travis-ci.com/mmbros/quotes)
+[![Go](https://github.com/mmbros/quotes/actions/workflows/go.yml/badge.svg)](https://github.com/mmbros/quotes/actions/workflows/go.yml)
 
 ## Contents
 
-- [quotes](#quotes)
-  - [Contents](#contents)
-  - [Overview](#overview)
-  - [Commands](#commands)
-    - [`get` command](#get-command)
-    - [`server` command](#server-command)
-    - [`sources` command](#sources-command)
-    - [`tor` command](#tor-command)
-    - [`version` command](#version-command)
-  - [Configuration file](#configuration-file)
-    - [`config`](#config)
-    - [`proxies`](#proxies)
-    - [`isins`](#isins)
-    - [`sources`](#sources)
-    - [Example](#example)
+- [Overview](#overview)
+- [Commands](#commands)
+  - [`get` command](#get-command)
+  - [`server` command](#server-command)
+  - [`sources` command](#sources-command)
+  - [`tor` command](#tor-command)
+  - [`version` command](#version-command)
+- [Configuration file](#configuration-file)
+  - [`config`](#config)
+  - [`proxies`](#proxies)
+  - [`isins`](#isins)
+  - [`sources`](#sources)
+  - [Example](#example)
 
 ## Overview
 
