@@ -263,10 +263,12 @@ errmsg
 	}
 	defer stmt.Close()
 
+	timestampNow := time.Now()
+
 	for _, i := range items {
 		timestamp := i.Timestamp
 		if timestamp.IsZero() {
-			timestamp = time.Now()
+			timestamp = timestampNow
 		}
 		// set datestamp
 		year, month, day := timestamp.Date()
