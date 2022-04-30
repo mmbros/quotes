@@ -30,6 +30,11 @@ Options:
     -p, --proxy       url      default proxy
     -s, --sources     strings  list of sources to get the quotes from
     -w, --workers     int      number of workers (default %[2]d)
+
+Examples:
+    # retrieves 2 isins from 3 sources: A with 4 workers, B and C with 2 workers each.
+    quote get -i isin1,isin2 -s sourceA/4,sourceB, -s sourceC --workers 2
+
 `
 
 func parseExecGet(fullname string, arguments []string) error {

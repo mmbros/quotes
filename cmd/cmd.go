@@ -19,7 +19,7 @@ Available Commands:
     version (v)    Version information
 
 Common options:
-    -h, --help   Help informations
+    -h, --help     Help informations
 `
 
 func initApp() *flagx.Command {
