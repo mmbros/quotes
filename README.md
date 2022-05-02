@@ -6,19 +6,21 @@ Get stock/fund quotes from various sources.
 
 ## Contents
 
-- [Overview](#overview)
-- [Commands](#commands)
-  - [`get` command](#get-command)
-  - [`server` command](#server-command)
-  - [`sources` command](#sources-command)
-  - [`tor` command](#tor-command)
-  - [`version` command](#version-command)
-- [Configuration file](#configuration-file)
-  - [`config`](#config)
-  - [`proxies`](#proxies)
-  - [`isins`](#isins)
-  - [`sources`](#sources)
-  - [Example](#example)
+- [quotes](#quotes)
+  - [Contents](#contents)
+  - [Overview](#overview)
+  - [Commands](#commands)
+    - [`get` command](#get-command)
+    - [`server` command](#server-command)
+    - [`sources` command](#sources-command)
+    - [`tor` command](#tor-command)
+    - [`version` command](#version-command)
+  - [Configuration file](#configuration-file)
+    - [`config`](#config)
+    - [`proxies`](#proxies)
+    - [`isins`](#isins)
+    - [`sources`](#sources)
+    - [Example](#example)
 
 ## Overview
 
@@ -90,6 +92,7 @@ See [`sources`](#sources-sub-command) for a list of the available sources.
 
 It retrieves the quotes of 2 isins from 3 sources: A with 4 workers,
 B and C with 2 workers each.
+
 ### `server` command
 
 Start an http server to view a page with graphs based upon the json files created with the get command.
@@ -108,6 +111,7 @@ Start an http server to view a page with graphs based upon the json files create
     server listening to :6789
 
 View the json files of the `./demo` folder.
+
 ### `sources` command
 
 Show available sources.

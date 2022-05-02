@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+      with:
+        submodules: true
 
     - name: Set up Go
       uses: actions/setup-go@v3
@@ -20,9 +22,6 @@ jobs:
 
     - name: Build
       run: go build -v ./...
-
-    - name: Get test dependencies (mmbros)  
-      run: go get -v -t
 
     - name: Test
       run: go test -v ./...
