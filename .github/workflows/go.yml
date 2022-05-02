@@ -23,5 +23,8 @@ jobs:
     - name: Build
       run: go build -v ./...
 
+    - name: Download test data
+      run: wget -np -r -nH --cut-dirs=4 https://github.com/mmbros/quotes/raw/main/test/internal/quotescraper.zip
+
     - name: Test
       run: go test -v ./...
