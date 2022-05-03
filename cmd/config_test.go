@@ -734,7 +734,7 @@ func TestMode(t *testing.T) {
 	}{
 		"args no mode": {
 			argtxt: "-i isin1",
-			want:   taskengine.FirstSuccessOrLastResult,
+			want:   taskengine.AllResults,
 		},
 		"args 1": {
 			argtxt: "-i isin1 -m 1",
