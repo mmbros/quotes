@@ -4,6 +4,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/PuerkitoBio/goquery"
+	"github.com/google/go-cmp/cmp"
 	"github.com/mmbros/quotes/internal/quotegetter/scrapers"
 	"github.com/mmbros/quotes/internal/quotegetter/scrapers/testingscraper"
 )
@@ -47,43 +49,56 @@ func TestGetInfo(t *testing.T) {
 
 func TestParseInfo(t *testing.T) {
 
-	testCases := []struct {
-		filename string
-		priceStr string
-		dateStr  string
+	tests := []struct {
+		name    string
+		html    string
+		want    *scrapers.ParseInfoResult
+		wantErr error
 	}{
-		{"fundsquare.net/info|IE00B4TG9K96|ok.html", "11.49", "11/09/2020"},
-		{"fundsquare.net/info|IE00B4TG9K96|unavailable.html", "11.47", "18/09/2020"},
-		{"fundsquare.net/info|IT0005247157|not-found.html", "", ""},
+		{
+			name: "ok",
+			html: `<div id="content"><table style="width: 100%"><tr><td><span style="font-weight: bold;">IE00B4TG9K96</span>&nbsp;&nbsp;PIMCO GIS Diversified Income Fund E Hgd EUR Dis&nbsp;&nbsp;</td><td></td></tr></table><table width="85%"><tr><td width="30%">Last NAV</td><td width="15%">11/09/2020</td><td width="55%"><span class="surligneorange">11.49&nbsp;EUR</span>&nbsp;<span style="color:#000000;text-align:left;padding:4px 0;"> 0.00 &nbsp;%&nbsp;<img src="/images/share/variationNulle.gif" style="vertical-align:middle;"/></span></td></tr></table>`,
+			want: &scrapers.ParseInfoResult{
+				IsinStr:     "IE00B4TG9K96",
+				PriceStr:    "11.49",
+				CurrencyStr: "EUR",
+				DateStr:     "11/09/2020",
+				DateLayout:  "02/01/2006",
+			},
+			wantErr: nil,
+		},
+		{
+			name:    "unavailable",
+			html:    `<html><head></head><body><div id="content"><table style="width: 100%"><tbody><tr><td><span style="font-weight: bold;">IE00B4TG9K96</span>  PIMCO GIS Diversified Income Fund E Hgd EUR Dis  </td><td></td></tr></tbody></table>`,
+			want:    &scrapers.ParseInfoResult{},
+			wantErr: scrapers.ErrPriceAndCurrencyString,
+		},
+		{
+			name:    "not-found",
+			html:    `<table width="100%"><tbody><tr><td valign="middle" align="center"><img src="/images/share/research.gif" alt="info"/></td><td valign="middle" align="center"><span class="title"><div class="contenu"><p class="zero"></p><p><span class="surligneorange"> No result</span> produced by your request.</p><p>Please<span class="surligneorange"> modify your search criteria</span>.</p><input type="submit" id="valida" name="valider" onclick="window.location=&#39;/search?fastSearch=O&amp;isISIN=O&amp;search=IT0005247157&#39;" class="back_search_w btn_w" value="Back to search"/><br class="clear_r"/><p></p></div><p class="ps">Number of results : <span>0</span></p></span></td></tr></tbody></table>`,
+			want:    &scrapers.ParseInfoResult{},
+			wantErr: scrapers.ErrNoResultFound,
+		},
 	}
 
 	scr := getTestScraper()
 
-	for _, tc := range testCases {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
 
-		doc, err := testingscraper.GetDoc(tc.filename)
-		if err != nil {
-			t.Error(tc.filename, err)
-			continue
-		}
-		res, err := scr.ParseInfo(doc, "")
-		if err != nil {
-			if tc.priceStr != "" {
-				t.Errorf("[%s] Unexpected error %q", tc.filename, err)
-			}
-			if err != scrapers.ErrNoResultFound {
-				t.Errorf("[%s] Unexpected error %q, expected %q", tc.filename, err, scrapers.ErrNoResultFound)
+			doc, err := goquery.NewDocumentFromReader(strings.NewReader(tt.html))
+			if testingscraper.CheckError(t, "goquery", err, nil) {
+				return
 			}
 
-			continue
-		}
-		t.Log(tc.filename, "->", res)
+			res, err := scr.ParseInfo(doc, "")
+			if testingscraper.CheckError(t, "ParseInfo", err, tt.wantErr) {
+				return
+			}
 
-		if res.PriceStr != tc.priceStr {
-			t.Errorf("[%s] PriceStr: expected %q, found %q", tc.filename, tc.priceStr, res.PriceStr)
-		}
-		if res.DateStr != tc.dateStr {
-			t.Errorf("[%s] DateStr: expected %q, found %q", tc.filename, tc.dateStr, res.DateStr)
-		}
+			if diff := cmp.Diff(tt.want, res, nil); diff != "" {
+				t.Errorf("%s: mismatch (-want +got):\n%s", tt.name, diff)
+			}
+		})
 	}
 }

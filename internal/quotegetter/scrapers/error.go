@@ -7,12 +7,13 @@ import (
 
 // Errors
 var (
-	ErrNoResultFound    = errors.New("no result found")
-	ErrIsinMismatch     = errors.New("isin mismatch")
-	ErrEmptyInfoURL     = errors.New("parse search returned an empty info URL")
-	ErrInfoRequestIsNil = errors.New("info request is nil")
-	ErrPriceNotFound    = errors.New("price not found")
-	ErrDateNotFound     = errors.New("date not found")
+	ErrNoResultFound          = errors.New("no result found")
+	ErrIsinMismatch           = errors.New("isin mismatch")
+	ErrEmptyInfoURL           = errors.New("parse search returned an empty info URL")
+	ErrInfoRequestIsNil       = errors.New("info request is nil")
+	ErrPriceNotFound          = errors.New("price not found")
+	ErrDateNotFound           = errors.New("date not found")
+	ErrPriceAndCurrencyString = errors.New("invalid price and currency string")
 )
 
 // ErrorType is ...

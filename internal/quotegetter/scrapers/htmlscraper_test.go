@@ -2,7 +2,6 @@ package scrapers
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -295,33 +294,35 @@ func TestGetQuote(t *testing.T) {
 }
 
 func TestSplitPriceCurrency(t *testing.T) {
-	testCases := []struct {
+	tests := []struct {
+		name        string
 		txt         string
 		priceFirst  bool
 		priceStr    string
 		currencyStr string
 		err         error
 	}{
-		{"12.34 EUR XXX YY", true, "12.34", "EUR", nil},
-		{"12.34\u00a0EUR XXX YY", true, "12.34", "EUR", nil},
-		{"  USD \u00a0  12.34  XXX YY Z", false, "12.34", "USD", nil},
-		{"String", true, "", "", errors.New("Invalid price and currency string: \"String\"")},
-		{"", false, "", "", errors.New("Invalid price and currency string: \"\"")},
+		{"value space currency extra", "12.34 EUR XXX YY", true, "12.34", "EUR", nil},
+		{"value nbsp currency extra", "12.34\u00a0EUR XXX YY", true, "12.34", "EUR", nil},
+		{"currency space nsp value extra", "  USD \u00a0  12.34  XXX YY Z", false, "12.34", "USD", nil},
+		{"invalid string", "String", true, "", "", ErrPriceAndCurrencyString},
+		{"empty", "", false, "", "", ErrPriceAndCurrencyString},
 	}
 
-	prefix := "ParsePriceCurrency"
-	for _, tc := range testCases {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
 
-		priceStr, currencyStr, err := SplitPriceCurrency(tc.txt, tc.priceFirst)
-		if testingscraper.CheckError(t, prefix, err, tc.err) {
-			continue
-		}
-		if currencyStr != tc.currencyStr {
-			t.Errorf("%s: currencyStr: expected %s, found %s", prefix, tc.currencyStr, currencyStr)
-		}
-		if priceStr != tc.priceStr {
-			t.Errorf("%s: priceStr: expected %s, found %s", prefix, tc.priceStr, priceStr)
-		}
+			priceStr, currencyStr, err := SplitPriceCurrency(tt.txt, tt.priceFirst)
+			if testingscraper.CheckError(t, "ParsePriceCurrency", err, tt.err) {
+				return
+			}
+			if currencyStr != tt.currencyStr {
+				t.Errorf("currencyStr: expected %s, found %s", tt.currencyStr, currencyStr)
+			}
+			if priceStr != tt.priceStr {
+				t.Errorf("priceStr: expected %s, found %s", tt.priceStr, priceStr)
+			}
+		})
 	}
 }
 
@@ -374,31 +375,30 @@ func TestQuoteGetterGetQuote(t *testing.T) {
 }
 
 func Test_parseDate(t *testing.T) {
-	testCases := []struct {
+	tests := []struct {
+		name     string
 		str      string
 		layout   string
 		wantTime time.Time
 		err      error
 	}{
-		{"1648247340", LayoutUnixTimestamp, time.Date(2022, 3, 25, 22, 29, 0, 0, time.UTC), nil},
-		{"164824734X", LayoutUnixTimestamp, time.Time{}, strconv.ErrSyntax},
-		{"11111111111111111111", LayoutUnixTimestamp, time.Time{}, strconv.ErrRange},
-		{"23/02/2000", "02/01/2006", time.Date(2000, 2, 23, 0, 0, 0, 0, time.Local), nil},
+		{"unix ok", "1648247340", LayoutUnixTimestamp, time.Date(2022, 3, 25, 22, 29, 0, 0, time.UTC), nil},
+		{"unix err syntax", "164824734X", LayoutUnixTimestamp, time.Time{}, strconv.ErrSyntax},
+		{"unix err range", "11111111111111111111", LayoutUnixTimestamp, time.Time{}, strconv.ErrRange},
+		{"ok", "23/02/2000", "02/01/2006", time.Date(2000, 2, 23, 0, 0, 0, 0, time.Local), nil},
 	}
 
-	prefix := "parseDate"
-	for _, tc := range testCases {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
 
-		gotTime, err := parseDate(tc.str, tc.layout)
-		if testingscraper.CheckError(t, prefix, err, tc.err) {
-			continue
-		}
+			gotTime, err := parseDate(tt.str, tt.layout)
+			if testingscraper.CheckError(t, "parseDate", err, tt.err) {
+				return
+			}
 
-		if !gotTime.Equal(tc.wantTime) {
-			t.Errorf("%s: expected %s, found %s", prefix, tc.wantTime, gotTime)
-		}
-		// if priceStr != tc.priceStr {
-		// 	t.Errorf("%s: priceStr: expected %s, found %s", prefix, tc.priceStr, priceStr)
-		// }
+			if !gotTime.Equal(tt.wantTime) {
+				t.Errorf("expected %s, found %s", tt.wantTime, gotTime)
+			}
+		})
 	}
 }

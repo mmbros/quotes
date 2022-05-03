@@ -1,14 +1,10 @@
 package testingscraper
 
 import (
-	"archive/zip"
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"os"
-	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/PuerkitoBio/goquery"
@@ -114,65 +110,65 @@ func NewDocumentFromFile(path string) (*goquery.Document, error) {
 	return goquery.NewDocumentFromReader(f)
 }
 
-// NewDocumentFromZipFile returns the goquery.Document created by a zipped html file
-func NewDocumentFromZipFile(file *zip.File) (*goquery.Document, error) {
-	fc, err := file.Open()
-	if err != nil {
-		return nil, err
-	}
-	defer fc.Close()
+// // NewDocumentFromZipFile returns the goquery.Document created by a zipped html file
+// func NewDocumentFromZipFile(file *zip.File) (*goquery.Document, error) {
+// 	fc, err := file.Open()
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer fc.Close()
 
-	return goquery.NewDocumentFromReader(fc)
-}
+// 	return goquery.NewDocumentFromReader(fc)
+// }
 
-func getBaseDir() string {
-	currentWorkingDirectory, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-	base := strings.SplitAfter(currentWorkingDirectory, "quotes")[0]
-	return base
-}
+// func getBaseDir() string {
+// 	currentWorkingDirectory, err := os.Getwd()
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	base := strings.SplitAfter(currentWorkingDirectory, "quotes")[0]
+// 	return base
+// }
 
-// getFullPath returns the full path to the file "test/internal/quotescaper/<relpath>".
-func getFullPath(relpath string) string {
-	base := getBaseDir()
-	return filepath.Join(base, "/test/internal/quotescraper", relpath)
-}
+// // getFullPath returns the full path to the file "test/internal/quotescaper/<relpath>".
+// func getFullPath(relpath string) string {
+// 	base := getBaseDir()
+// 	return filepath.Join(base, "/test/internal/quotescraper", relpath)
+// }
 
-// GetDoc returns the goquery.Document created by
-// the local html file "test/internal/quotescaper/<relpath>".
-func GetDoc(relpath string) (*goquery.Document, error) {
-	// use file system first
-	fullpath := getFullPath(relpath)
-	doc, err := NewDocumentFromFile(fullpath)
-	if err == nil {
-		return doc, nil
-	}
+// // GetDoc returns the goquery.Document created by
+// // the local html file "test/internal/quotescaper/<relpath>".
+// func GetDoc(relpath string) (*goquery.Document, error) {
+// 	// use file system first
+// 	fullpath := getFullPath(relpath)
+// 	doc, err := NewDocumentFromFile(fullpath)
+// 	if err == nil {
+// 		return doc, nil
+// 	}
 
-	// then use zip file
-	return zipGetDoc(relpath)
-}
+// 	// then use zip file
+// 	return zipGetDoc(relpath)
+// }
 
-func zipGetDoc(relpath string) (*goquery.Document, error) {
-	// retrieve zip file full path
-	zipfile := filepath.Join(getBaseDir(), "/test/internal/quotescraper.zip")
+// func zipGetDoc(relpath string) (*goquery.Document, error) {
+// 	// retrieve zip file full path
+// 	zipfile := filepath.Join(getBaseDir(), "/test/internal/quotescraper.zip")
 
-	// open zip file
-	r, err := zip.OpenReader(zipfile)
-	if err != nil {
-		return nil, err
-	}
-	defer r.Close()
+// 	// open zip file
+// 	r, err := zip.OpenReader(zipfile)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer r.Close()
 
-	fname := filepath.Join("quotescraper", relpath)
+// 	fname := filepath.Join("quotescraper", relpath)
 
-	// Iterate through the files in the archive,
-	for _, f := range r.File {
-		if f.Name == fname {
-			return NewDocumentFromZipFile(f)
-		}
-	}
+// 	// Iterate through the files in the archive,
+// 	for _, f := range r.File {
+// 		if f.Name == fname {
+// 			return NewDocumentFromZipFile(f)
+// 		}
+// 	}
 
-	return nil, fmt.Errorf("File %q not found in %q", relpath, zipfile)
-}
+// 	return nil, fmt.Errorf("File %q not found in %q", relpath, zipfile)
+// }

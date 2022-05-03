@@ -261,7 +261,8 @@ func SplitPriceCurrency(txt string, priceFirst bool) (priceStr string, currencyS
 	a := strings.Fields(txt)
 	if len(a) < 2 {
 		priceStr = txt
-		err = fmt.Errorf("Invalid price and currency string: %q", txt)
+		//		err = fmt.Errorf("Invalid price and currency string: %q", txt)
+		err = fmt.Errorf("%w: %q", ErrPriceAndCurrencyString, txt)
 		return
 	}
 
