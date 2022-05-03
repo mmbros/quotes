@@ -27,15 +27,15 @@ Get stock/fund quotes from various sources.
 `quotes` is a command line utility that retrieves stock/fund quotes from
 various sources.
 
-The stock/fund securities are identified by their International Securities
-Identification Number (ISIN).
+The stock/fund securities are identified by their *International Securities
+Identification Number* (ISIN).
 Cryptocurrencies are identified by their currency code.
 
 Each quote request is retrieved concurrently from all the sources available
 for that stock/fund. For each isin, the first success request is returned,
 and the remaining requests are cancelled.
 
-See [`sources`](#sources-sub-command) for a list of the available sources.
+See [`sources`](#sources-command) command for a list of the available sources.
 
 The number of workers of each source represents the number of concurrent
 requests that can be executed for that specific source.
@@ -64,7 +64,7 @@ Get the quotes of the specified isins from the sources.
 If source options are not specified, all the available sources for
 the isin are used.
 
-See [`sources`](#sources-sub-command) for a list of the available sources.
+See [`sources`](#sources-command) command for a list of the available sources.
 
     Usage:
       quotes get [flags]
@@ -76,7 +76,7 @@ See [`sources`](#sources-sub-command) for a list of the available sources.
       -d, --database    dns      sqlite3 database used to save the quotes
       -f, --force       bool     overwrite already existing output file
       -i, --isins       strings  list of isins to get the quotes
-      -m, --mode        char     result mode (default %[3]q): 
+      -m, --mode        char     result mode (default "A): 
                                     "1" first success or last error
                                     "U" all errors until first success 
                                     "A" all 
@@ -84,7 +84,7 @@ See [`sources`](#sources-sub-command) for a list of the available sources.
       -o, --output      path     pathname of the output file (default stdout)
       -p, --proxy       url      default proxy
       -s, --sources     strings  list of sources to get the quotes from
-      -w, --workers     int      number of workers (default %[2]d)
+      -w, --workers     int      number of workers (default 1)
 
 *Example:*
 
@@ -146,11 +146,11 @@ The configuration file path can be specified by:
    - $HOME/.quotes/config.ext
    - $HOME/.quotes/quotes.ext
 
-The configuration can be written in `toml`, `yaml` or `json` format. The format can be speified by:
+The configuration can be written in `toml`, `yaml` or `json` format. The format can be:
 
-1. the `--config-type` command-line flag;
-2. the `QUOTES_CONFIG_TYPE` environment variable;
-3. the config file extension.
+1. specified by the `--config-type` command-line flag;
+2. specified bythe `QUOTES_CONFIG_TYPE` environment variable;
+3. guessed by the config file extension.
 
 ### `config`
 

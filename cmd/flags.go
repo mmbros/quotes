@@ -39,7 +39,7 @@ const (
 
 // Default args value
 const (
-	defaultMode    = "1"
+	defaultMode    = "A"
 	defaultWorkers = 1
 )
 
