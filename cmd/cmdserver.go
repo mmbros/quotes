@@ -61,7 +61,8 @@ func parseExecServer(fullname string, arguments []string) error {
 
 	// handle help
 	if err == flag.ErrHelp {
-		fs.Usage()
+		// clear error
+		// note: usage already showed internally
 		return nil
 	}
 	return execServer(address, folder, recursive)

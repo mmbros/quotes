@@ -57,9 +57,14 @@ func parseExecApp(fullname string, arguments []string) error {
 	err := flags.Parse(arguments)
 
 	// handle help
-	if err == nil || err == flag.ErrHelp {
+	if err == nil {
+		// show usage
 		flags.Usage()
-		return nil
+	}
+	if err == flag.ErrHelp {
+		// clear error
+		// note: usage already showed internally
+		err = nil
 	}
 
 	return err

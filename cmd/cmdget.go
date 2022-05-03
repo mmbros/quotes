@@ -19,7 +19,7 @@ Options:
         --config-type string   used if config file does not have the extension in the name;
                                accepted values are: YAML, TOML and JSON 
     -d, --database    dns      sqlite3 database used to save the quotes
-	-f, --force       bool     overwrite already existing output file
+    -f, --force       bool     overwrite already existing output file
     -i, --isins       strings  list of isins to get the quotes
     -m, --mode        char     result mode (default %[3]q): 
                                   "1" first success or last error
@@ -48,7 +48,8 @@ func parseExecGet(fullname string, arguments []string) error {
 
 	// handle help
 	if err == flag.ErrHelp {
-		flags.Usage()
+		// clear error
+		// note: usage already showed internally
 		return nil
 	}
 	if err != nil {

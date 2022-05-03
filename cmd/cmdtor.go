@@ -34,7 +34,8 @@ func parseExecTor(fullname string, arguments []string) error {
 
 	// handle help
 	if err == flag.ErrHelp {
-		flags.Usage()
+		// clear error
+		// note: usage already showed internally
 		return nil
 	}
 	if err != nil {
