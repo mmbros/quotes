@@ -76,7 +76,7 @@ See [`sources`](#sources-command) command for a list of the available sources.
       -d, --database    dns      sqlite3 database used to save the quotes
       -f, --force       bool     overwrite already existing output file
       -i, --isins       strings  list of isins to get the quotes
-      -m, --mode        char     result mode (default "A): 
+      -m, --mode        char     result mode (default "A"): 
                                     "1" first success or last error
                                     "U" all errors until first success 
                                     "A" all 
@@ -103,7 +103,8 @@ Start an http server to view a page with graphs based upon the json files create
     Options:
         -a, --address    string   server address and port (default ":6789")
         -f, --folder     path     folder containing the json files (default ".")
-        -r, --recursive  bool     search recursively all the json files of the sub-folders (default false)
+        -r, --recursive  bool     search recursively all the json files of the
+                                  sub-folders (default false)
 
 *Example:*
 
