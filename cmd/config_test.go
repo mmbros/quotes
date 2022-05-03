@@ -726,7 +726,7 @@ func TestMode(t *testing.T) {
 
 	availableSources := []string{"source1", "source2", "source3"}
 
-	cases := map[string]struct {
+	tests := map[string]struct {
 		argtxt string
 		cfgtxt string
 		want   taskengine.Mode
@@ -790,20 +790,21 @@ isins:
 			want:   taskengine.ResultsUntilFirstSuccess,
 		},
 	}
-	for title, c := range cases {
+	for name, c := range tests {
+		t.Run(name, func(t *testing.T) {
+			flags, err := initAppGetFlags(c.argtxt)
+			require.NoError(t, err)
+			cfg, err := auxNewConfig([]byte(c.cfgtxt), nil, flags, availableSources)
 
-		flags, err := initAppGetFlags(c.argtxt)
-		require.NoError(t, err)
-		cfg, err := auxNewConfig([]byte(c.cfgtxt), nil, flags, availableSources)
-
-		if c.errmsg != "" {
-			if assert.Error(t, err, title) {
-				assert.Contains(t, err.Error(), c.errmsg, title)
+			if c.errmsg != "" {
+				if assert.Error(t, err, name) {
+					assert.Contains(t, err.Error(), c.errmsg, name)
+				}
+			} else {
+				if assert.NoError(t, err, name) {
+					assert.Equal(t, c.want, cfg.taskengMode, name)
+				}
 			}
-		} else {
-			if assert.NoError(t, err, title) {
-				assert.Equal(t, c.want, cfg.taskengMode, title)
-			}
-		}
+		})
 	}
 }
