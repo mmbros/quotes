@@ -152,7 +152,7 @@ func (s *scraper) ParseInfo(doc *goquery.Document, isin string) (*scrapers.Parse
 	doc.Find("div#content table td").EachWithBreak(func(i int, s *goquery.Selection) bool {
 		switch i {
 		case 0:
-			r.IsinStr = s.Find("span").Text()
+			r.IsinStr = strings.TrimSpace(s.Find("span").Text())
 		case 3:
 			r.DateStr = s.Text()
 			isLastNavAvailable = !strings.HasPrefix(r.DateStr, "Unavailable")
