@@ -92,7 +92,8 @@ func (s *scraper) ParseInfo(doc *goquery.Document, isin string) (*scrapers.Parse
 	r := new(scrapers.ParseInfoResult)
 	r.DateLayout = scrapers.LayoutUnixTimestamp
 
-	div := doc.Find("div[data-is-crypto]")
+	// div := doc.Find("div[data-is-crypto]")
+	div := doc.Find("div[data-entity-type=\"3\"]")
 	r.DateStr, _ = div.Attr("data-last-normal-market-timestamp")
 	r.IsinStr, _ = div.Attr("data-source")
 	r.CurrencyStr, _ = div.Attr("data-target")
