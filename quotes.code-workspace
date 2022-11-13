@@ -14,7 +14,6 @@
 				"type": "go",
 				"request": "launch",
 				"mode": "auto",
-				"program-OLD": "${fileDirname}",
 				"program": "${workspaceFolder}/main.go",
 				"args": ["-h"]
 			},
